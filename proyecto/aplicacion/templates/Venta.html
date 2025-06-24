@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Ventas - QChicharrón</title>
+  <link rel="stylesheet" href="estilos.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #c0392b;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    h2 {
+      color: #922b21;
+    }
+
+    form, .informe, .tabla-ventas {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    form input, form select {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    form button {
+      background-color: #c0392b;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f9eaea;
+    }
+
+    .informe h3 {
+      margin-top: 0;
+    }
+
+    .datos-informe {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .dato {
+      background: #fceae8;
+      border-left: 6px solid #c0392b;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+
+    .dato strong {
+      font-size: 1.2em;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Gestión de Ventas</h1>
+</header>
+
+<main>
+
+  <section>
+    <h2>Registrar nueva venta</h2>
+    <form id="formVenta">
+      <label for="producto">Producto vendido</label>
+      <input type="text" id="producto" name="producto" placeholder="Ej. Chicharrón especial">
+
+      <label for="cantidad">Cantidad</label>
+      <input type="number" id="cantidad" name="cantidad" placeholder="Ej. 3">
+
+      <label for="cliente">Cliente</label>
+      <input type="text" id="cliente" name="cliente" placeholder="Nombre del cliente">
+
+      <label for="fecha">Fecha</label>
+      <input type="date" id="fecha" name="fecha">
+
+      <label for="precio">Precio total</label>
+      <input type="number" id="precio" name="precio" placeholder="Ej. 30000">
+
+      <button type="submit">Guardar venta</button>
+    </form>
+  </section>
+
+  <section class="tabla-ventas">
+    <h2>Lista de ventas registradas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Chicharrón especial</td>
+          <td>3</td>
+          <td>Camila Rojas</td>
+          <td>2025-06-24</td>
+          <td>$30,000</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Yuca frita</td>
+          <td>2</td>
+          <td>Andrés López</td>
+          <td>2025-06-23</td>
+          <td>$12,000</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="informe">
+    <h2>Informe de Ventas</h2>
+    <div class="datos-informe">
+      <div class="dato">
+        <strong>$42,000</strong>
+        Total de ingresos por ventas
+      </div>
+      <div class="dato">
+        <strong>2</strong>
+        Ventas registradas
+      </div>
+      <div class="dato">
+        <strong>Chicharrón especial</strong>
+        Producto más vendido
+      </div>
+      <div class="dato">
+        <strong>Camila Rojas</strong>
+        Cliente más frecuente
+      </div>
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>
