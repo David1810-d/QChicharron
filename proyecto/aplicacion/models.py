@@ -39,8 +39,10 @@ class Venta(models.Model):
 
     def _str_(self):
         return f"Venta {self.factura} - {self.cliente}"
-        #------------------------Modelos Santiago-----------------------------
-    #------------------Insumo---------------------------------------------
+
+
+#------------------Modelos Santiago-----------------------------
+#-----------------------Insumo----------------------------------
     
 class Insumo(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre del Insumo", unique=True)
@@ -109,3 +111,74 @@ class Nomina(models.Model):
         ordering = ['-fecha_pago']
 #---------------------------------------------------Listo el pollo-------------------------
 
+#------------------Modelos Alejandro-----------------------------
+#-----------------------Plato------------------------------------
+
+class Categoria(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
+class Plato(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre del plato", unique=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    ingredientes = models.TextField(verbose_name="Ingredientes")
+    imagen = models.ImageField(upload_to="platos/%y/%m/%d", null=True, blank=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.nombre
+    
+#-----------------------Pedido------------------------------------
+class Pedido(models.Model):
+    mesa_numero = models.IntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=20, choices=[
+        ("pendiente", "Pendiente"),
+        ("en preparación", "En preparación"),
+        ("listo", "Listo"),
+        ("entregado", "Entregado")
+    ], default="pendiente")
+    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Pedido Mesa {self.mesa_numero} - {self.fecha.date()}"
+    
+#-----------------------Detalle del pedido-------------------------
+#-----------------------Relacion entre pedido y plato--------------
+
+class DetallePedido(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
+    plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.cantidad} x {self.plato.nombre}"
+    
+#-----------------------Empleado------------------------------------
+ 
+class Empleado(models.Model):
+    ROLES = (
+        ("mesero", "Mesero"),
+        ("cocinero", "Cocinero"),
+        ("cajero", "Cajero"),
+        ("admin", "Administrador"),
+    )
+    nombre = models.CharField(max_length=100)
+    cedula = models.CharField(max_length=20, unique=True)
+    correo = models.EmailField(unique=True)
+    telefono = models.CharField(max_length=20)
+    cargo = models.CharField(max_length=20, choices=ROLES)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.cargo}"   
+    
+#-----------------------Usuario------------------------------------
+class Usuario(models.Model):
+    nombre = models.CharField(max_length=100)
+    correo = models.EmailField(unique=True)
+    contraseña = models.CharField(max_length=128)  # en producción deberías encriptar
+
+    def __str__(self):
+        return self.nombre

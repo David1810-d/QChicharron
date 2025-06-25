@@ -27,5 +27,10 @@ urlpatterns = [
     path('proveedor/',proveedor),
     path('insumos/',insumos),
     path('productos_venta/',productosventa),
-    path('nomina/',nomina)
+    path('nomina/',nomina),
+    path("plato/", plato),
+    path("pedido/", pedido),
+    path("detalle_pedido/", detalle_pedido),
+    path("empleado/", empleado),
+    path("usuario/", ususario)
 ]

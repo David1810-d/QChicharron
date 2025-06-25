@@ -25,4 +25,14 @@ def productosventa(request):
 def proveedor(request):
     return render(request, 'proveedor.html')
 
-
+#----Vistas Alejandro---------------------
+def plato(request):
+    return render(request, "plato.html")
+def pedido(request):
+    return render(request, "pedido.html")
+def detalle_pedido(request):
+    return render(request, "detalle_pedido.html")
+def empleado(request):
+    return render(request, "empleado.html")
+def ususario(request):
+    return render(request, "usuario.html")
