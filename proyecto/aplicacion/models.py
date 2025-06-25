@@ -39,3 +39,73 @@ class Venta(models.Model):
 
     def _str_(self):
         return f"Venta {self.factura} - {self.cliente}"
+        #------------------------Modelos Santiago-----------------------------
+    #------------------Insumo---------------------------------------------
+    
+class Insumo(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre del Insumo", unique=True)
+    proveedor = models.ForeignKey('Proveedor', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Proveedor")
+    imagen = models.ImageField(upload_to='insumos/%y/%m/%d', null=True, blank=True, verbose_name="Imagen del Insumo")
+    unidad_medida = models.CharField(max_length=20, verbose_name="Unidad de Medida")  # Ej: kg, litros, unidades
+    cantidad = models.PositiveIntegerField(verbose_name="Cantidad en Stock")
+    fecha_ingreso = models.DateField(verbose_name="Fecha de Ingreso")
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Insumo"
+        verbose_name_plural = "Insumos"
+        ordering = ['nombre']
+
+#------------------------------Producto ventadirecta--------------------------------------------
+class ProductoVentaDirecta(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre del Producto", unique=True)
+    proveedor = models.ForeignKey('Proveedor', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Proveedor")
+    imagen = models.ImageField(upload_to='productos_directos/%y/%m/%d', null=True, blank=True, verbose_name="Imagen del Producto")
+    precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de Venta")
+    stock = models.PositiveIntegerField(verbose_name="Stock Disponible")
+    fecha_ingreso = models.DateField(verbose_name="Fecha de Ingreso")
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Producto para Venta Directa"
+        verbose_name_plural = "Productos para Venta Directa"
+        ordering = ['nombre']
+#-----------------------------Proveeedor---------------------------------------------------------
+class Proveedor(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name="Nombre del Proveedor", unique=True)
+    nit = models.CharField(max_length=50, verbose_name="NIT", unique=True)
+    telefono = models.CharField(max_length=20, verbose_name="Teléfono de Contacto")
+    correo = models.EmailField(verbose_name="Correo Electrónico")
+    direccion = models.CharField(max_length=200, verbose_name="Dirección")
+    estado = models.CharField(max_length=20, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')], verbose_name="Estado")
+
+    def __str__(self):
+        return self.nombre
+
+    class Meta:
+        verbose_name = "Proveedor"
+        verbose_name_plural = "Proveedores"
+        ordering = ['nombre']
+#-----------------------------------Nomina---------------------------------------------------
+class Nomina(models.Model):
+    empleado = models.CharField(max_length=100, verbose_name="Nombre del Empleado")  # Se puede cambiar por ForeignKey a un modelo Empleado
+    fecha_pago = models.DateField(verbose_name="Fecha de Pago")
+    salario_base = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Salario Base")
+    horas_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Horas Extra")
+    descuentos = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Descuentos")
+    salario_neto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Salario Neto")
+    observaciones = models.TextField(blank=True, verbose_name="Observaciones")
+
+    def __str__(self):
+        return f"{self.empleado} - {self.fecha_pago}"
+
+    class Meta:
+        verbose_name = "Registro de Nómina"
+        verbose_name_plural = "Nóminas"
+        ordering = ['-fecha_pago']
+#---------------------------------------------------Listo el pollo-------------------------
+
