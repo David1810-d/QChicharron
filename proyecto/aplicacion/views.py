@@ -15,4 +15,14 @@ def vista3(request):
 
 def vista4(request):
     return render(request, 'Venta.html')
+#------Vistas santiago------------------------
+def insumos(request):
+    return render(request, 'insumos.html')
+def nomina(request):
+    return render(request, 'nomina.html')
+def productosventa(request):
+    return render(request, 'productos_ventadirecta.html')
+def proveedor(request):
+    return render(request, 'proveedor.html')
+
 
