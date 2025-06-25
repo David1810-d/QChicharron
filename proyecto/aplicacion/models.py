@@ -9,7 +9,8 @@ class Administrador(models.Model):
     creado = models.DateTimeField(auto_now_add=True)
 
     def _str_(self):
-        return self.nombre
+        return self.nombre 
+    
 class Compra(models.Model):
     proveedor = models.CharField(max_length=100)
     factura = models.CharField(max_length=50)
@@ -19,6 +20,7 @@ class Compra(models.Model):
 
     def _str_(self):
         return f"Compra {self.factura} - {self.proveedor}"
+    
 class Informe(models.Model):
     tipo = models.CharField(max_length=50, choices=[('ventas', 'Ventas'), ('compras', 'Compras'), ('nomina', 'Nómina')])
     fecha_generado = models.DateTimeField(auto_now_add=True)
@@ -27,6 +29,7 @@ class Informe(models.Model):
 
     def _str_(self):
         return f"Informe de {self.tipo} - {self.fecha_generado.strftime('%Y-%m-%d')}"
+    
 class Venta(models.Model):
     cliente = models.CharField(max_length=100)
     factura = models.CharField(max_length=50)
