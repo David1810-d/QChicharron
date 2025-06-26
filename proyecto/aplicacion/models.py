@@ -183,6 +183,8 @@ class Usuario(models.Model):
     def __str__(self):
         return self.nombre
 
+
+#------------------Modelos Angel-----------------------------
 #---------------------------Menu--------------------------------
 
 class Menu(models.Model):
