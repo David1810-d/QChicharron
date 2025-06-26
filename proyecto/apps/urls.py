@@ -20,10 +20,10 @@ from aplicacion.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('Adminis/',vista1),
-    path('Compra/',vista2),
-    path('Informe/',vista3),
-    path('Venta/',vista4),
+    path('Adminis/',Adminis),
+    path('Compra/',Compra),
+    path('Informe/',Informe),
+    path('Venta/',Venta),
     path('proveedor/',proveedor),
     path('insumos/',insumos),
     path('productos_venta/',productosventa),

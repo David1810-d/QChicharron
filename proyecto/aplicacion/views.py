@@ -4,16 +4,16 @@ from django.http import HttpResponse
 # Create your views here.
 
 
-def vista1(request):
+def Adminis(request):
     return render(request, 'Adminis.html')
 
-def vista2(request):
+def Compra(request):
     return render(request, 'Compra.html')
 
-def vista3(request):
+def Informe(request):
     return render(request, 'Informe.html')
 
-def vista4(request):
+def Venta(request):
     return render(request, 'Venta.html')
 #------Vistas santiago------------------------
 def insumos(request):
