@@ -114,9 +114,15 @@ class Nomina(models.Model):
 #------------------Modelos Alejandro-----------------------------
 #-----------------------Plato------------------------------------
 
+class Categoria1(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nombre
+
 class Plato(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre del plato", unique=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria1, on_delete=models.CASCADE)
     ingredientes = models.TextField(verbose_name="Ingredientes")
     imagen = models.ImageField(upload_to="platos/%y/%m/%d", null=True, blank=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
@@ -185,7 +191,9 @@ class Menu(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     platos = models.ManyToManyField(Plato, related_name='menus')
     poductos= models.ManyToManyField(ProductoVentaDirecta, related_name='menus')
+
     
+
     def __str__(self):
         return self.nombre , self.platos.all(), self.poductos.all() 
 
