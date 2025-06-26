@@ -114,12 +114,6 @@ class Nomina(models.Model):
 #------------------Modelos Alejandro-----------------------------
 #-----------------------Plato------------------------------------
 
-class Categoria(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
-
-    def __str__(self):
-        return self.nombre
-
 class Plato(models.Model):
     nombre = models.CharField(max_length=100, verbose_name="Nombre del plato", unique=True)
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
@@ -191,9 +185,7 @@ class Menu(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     platos = models.ManyToManyField(Plato, related_name='menus')
     poductos= models.ManyToManyField(ProductoVentaDirecta, related_name='menus')
-
     
-
     def __str__(self):
         return self.nombre , self.platos.all(), self.poductos.all() 
 
