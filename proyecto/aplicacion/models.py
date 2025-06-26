@@ -182,3 +182,31 @@ class Usuario(models.Model):
 
     def __str__(self):
         return self.nombre
+
+#---------------------------Menu--------------------------------
+
+class Menu(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    platos = models.ManyToManyField(Plato, related_name='menus')
+    poductos= models.ManyToManyField(ProductoVentaDirecta, related_name='menus')
+
+    
+
+    def __str__(self):
+        return self.nombre , self.platos.all(), self.poductos.all() 
+
+#---------------------------Categoria--------------------------------
+class categoria(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+    
+#---------------------------Marca--------------------------------   
+class marca(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre

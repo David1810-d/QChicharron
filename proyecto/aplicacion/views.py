@@ -36,3 +36,13 @@ def empleado(request):
     return render(request, "empleado.html")
 def ususario(request):
     return render(request, "usuario.html")
+
+#----Vistas de Angel---------------------
+
+def categpria(request):
+    return render(request, "Categoria.html")
+def marca(request):
+    return render(request, "marca.html")
+def menu(request):
+    return render(request, "Menu.html")
+
