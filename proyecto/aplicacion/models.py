@@ -192,8 +192,6 @@ class Menu(models.Model):
     platos = models.ManyToManyField(Plato, related_name='menus')
     poductos= models.ManyToManyField(ProductoVentaDirecta, related_name='menus')
 
-    
-
     def __str__(self):
         return self.nombre , self.platos.all(), self.poductos.all() 
 
