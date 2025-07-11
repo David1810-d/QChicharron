@@ -1,0 +1,13 @@
+<!-- aside/body.html -->
+<div class="container-fluid">
+  {% include "header.html" %}
+
+  <div class="row">
+    <div class="col-md-3">
+      {% include "aside/slide.html" %}
+    </div>
+    <div class="col-md-9">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</div>

@@ -6,4 +6,5 @@ app_name = "apl"
 
 urlpatterns = [
     path("index/", vista1, name="index"),
+    path("p/", vista2,name="p"),
 ]
