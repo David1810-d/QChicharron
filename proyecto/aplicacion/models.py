@@ -1,212 +1,175 @@
 from django.db import models
+from django.utils import timezone
+import datetime
 
-# Create your models here.
-    
-class Administrador(models.Model):
+# ------------------ Modelos: Administrador, Usuario, Empleado -----------------------------
+
+class Usuario(models.Model):
     nombre = models.CharField(max_length=100)
-    correo = models.EmailField(unique=True)
-    telefono = models.CharField(max_length=15, blank=True)
-    creado = models.DateTimeField(auto_now_add=True)
-
-    def _str_(self):
-        return self.nombre 
-    
-class Compra(models.Model):
-    proveedor = models.CharField(max_length=100)
-    factura = models.CharField(max_length=50)
-    fecha_compra = models.DateField()
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    creado = models.DateTimeField(auto_now_add=True)
-
-    def _str_(self):
-        return f"Compra {self.factura} - {self.proveedor}"
-    
-class Informe(models.Model):
-    tipo = models.CharField(max_length=50, choices=[('ventas', 'Ventas'), ('compras', 'Compras'), ('nomina', 'Nómina')])
-    fecha_generado = models.DateTimeField(auto_now_add=True)
-    descripcion = models.TextField()
-    generado_por = models.ForeignKey('Administrador', on_delete=models.SET_NULL, null=True)
-
-    def _str_(self):
-        return f"Informe de {self.tipo} - {self.fecha_generado.strftime('%Y-%m-%d')}"
-    
-class Venta(models.Model):
-    cliente = models.CharField(max_length=100)
-    factura = models.CharField(max_length=50)
-    fecha_venta = models.DateField()
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    creado = models.DateTimeField(auto_now_add=True)
-
-    def _str_(self):
-        return f"Venta {self.factura} - {self.cliente}"
-
-
-#------------------Modelos Santiago-----------------------------
-#-----------------------Insumo----------------------------------
-    
-class Insumo(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre del Insumo", unique=True)
-    proveedor = models.ForeignKey('Proveedor', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Proveedor")
-    imagen = models.ImageField(upload_to='insumos/%y/%m/%d', null=True, blank=True, verbose_name="Imagen del Insumo")
-    unidad_medida = models.CharField(max_length=20, verbose_name="Unidad de Medida")  # Ej: kg, litros, unidades
-    cantidad = models.PositiveIntegerField(verbose_name="Cantidad en Stock")
-    fecha_ingreso = models.DateField(verbose_name="Fecha de Ingreso")
+    cedula = models.CharField(max_length=20)
+    correo_electronico = models.EmailField()
+    numero_celular = models.CharField(max_length=20)
+    estado = models.CharField(max_length=20, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')])
+    contraseña = models.CharField(max_length=255)
 
     def __str__(self):
         return self.nombre
 
-    class Meta:
-        verbose_name = "Insumo"
-        verbose_name_plural = "Insumos"
-        ordering = ['nombre']
-
-#------------------------------Producto ventadirecta--------------------------------------------
-class ProductoVentaDirecta(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre del Producto", unique=True)
-    proveedor = models.ForeignKey('Proveedor', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Proveedor")
-    imagen = models.ImageField(upload_to='productos_directos/%y/%m/%d', null=True, blank=True, verbose_name="Imagen del Producto")
-    precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de Venta")
-    stock = models.PositiveIntegerField(verbose_name="Stock Disponible")
-    fecha_ingreso = models.DateField(verbose_name="Fecha de Ingreso")
+class Empleado(models.Model):
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    fecha_ingreso = models.DateField(default=datetime.date.today)
+    estado = models.CharField(max_length=20, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')])
 
     def __str__(self):
-        return self.nombre
+        return f"{self.usuario.nombre}"
 
-    class Meta:
-        verbose_name = "Producto para Venta Directa"
-        verbose_name_plural = "Productos para Venta Directa"
-        ordering = ['nombre']
-#-----------------------------Proveeedor---------------------------------------------------------
+class Administrador(models.Model):
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
+    nivel_prioridad = models.IntegerField()
+
+    def __str__(self):
+        return f"Admin {self.usuario.nombre}"
+
+# ---------------------------- Proveedor, Marca, Categoría -----------------------------
+
 class Proveedor(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre del Proveedor", unique=True)
-    nit = models.CharField(max_length=50, verbose_name="NIT", unique=True)
-    telefono = models.CharField(max_length=20, verbose_name="Teléfono de Contacto")
-    correo = models.EmailField(verbose_name="Correo Electrónico")
-    direccion = models.CharField(max_length=200, verbose_name="Dirección")
-    estado = models.CharField(max_length=20, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')], verbose_name="Estado")
+    nit = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
 
-    class Meta:
-        verbose_name = "Proveedor"
-        verbose_name_plural = "Proveedores"
-        ordering = ['nombre']
-#-----------------------------------Nomina---------------------------------------------------
-class Nomina(models.Model):
-    empleado = models.CharField(max_length=100, verbose_name="Nombre del Empleado")  # Se puede cambiar por ForeignKey a un modelo Empleado
-    fecha_pago = models.DateField(verbose_name="Fecha de Pago")
-    salario_base = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Salario Base")
-    horas_extra = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Horas Extra")
-    descuentos = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Descuentos")
-    salario_neto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Salario Neto")
-    observaciones = models.TextField(blank=True, verbose_name="Observaciones")
+class Marca(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+    pais_origen = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.empleado} - {self.fecha_pago}"
+        return self.nombre
 
-    class Meta:
-        verbose_name = "Registro de Nómina"
-        verbose_name_plural = "Nóminas"
-        ordering = ['-fecha_pago']
-#---------------------------------------------------Listo el pollo-------------------------
-
-#------------------Modelos Alejandro-----------------------------
-#-----------------------Plato------------------------------------
-
-class Categoria1(models.Model):
+class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+# ---------------------------- Producto y Compra -----------------------------
+
+class Producto(models.Model):
+    TIPO_USO = (
+        ('plato', 'Plato'),
+        ('venta', 'Venta directa'),
+    )
+
+    id_producto = models.CharField(max_length=50, primary_key=True)
+    nombre = models.CharField(max_length=100)
+    marca = models.ForeignKey(Marca, on_delete=models.SET_NULL, null=True)
+    fecha = models.DateField(default=datetime.date.today)
+    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
+    tipo_uso = models.CharField(max_length=10, choices=TIPO_USO)
+
+    def __str__(self):
+        return self.nombre
+
+class Compra(models.Model):
+    id_factura = models.CharField(max_length=20, primary_key=True)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.IntegerField()
+    fecha = models.DateField(default=datetime.date.today)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.id_factura
+
+# ---------------------------- Mesa y Pedido -----------------------------
+
+class Mesa(models.Model):
+    capacidad = models.IntegerField()
+    ubicacion = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"Mesa {self.id} - {self.ubicacion}"
+
+class Pedido(models.Model):
+    mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(default=timezone.now)  # ← CORREGIDO
+    estado = models.CharField(max_length=20, choices=[
+        ('pendiente', 'Pendiente'),
+        ('en_proceso', 'En proceso'),
+        ('entregado', 'Entregado')
+    ])
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"Pedido {self.id} - Mesa {self.mesa.id}"
+
+# ---------------------------- Menú y Plato -----------------------------
+
+class Menu(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return self.nombre
 
 class Plato(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Nombre del plato", unique=True)
-    categoria = models.ForeignKey(Categoria1, on_delete=models.CASCADE)
-    ingredientes = models.TextField(verbose_name="Ingredientes")
-    imagen = models.ImageField(upload_to="platos/%y/%m/%d", null=True, blank=True)
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return self.nombre
-    
-#-----------------------Pedido------------------------------------
-class Pedido(models.Model):
-    mesa_numero = models.IntegerField()
-    fecha = models.DateTimeField(auto_now_add=True)
-    estado = models.CharField(max_length=20, choices=[
-        ("pendiente", "Pendiente"),
-        ("en preparación", "En preparación"),
-        ("listo", "Listo"),
-        ("entregado", "Entregado")
-    ], default="pendiente")
-    total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+# ---------------------------- Relaciones: PedidoProducto, PedidoMenu, PlatoProducto -----------------------------
+
+class PedidoProducto(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Pedido Mesa {self.mesa_numero} - {self.fecha.date()}"
-    
-#-----------------------Detalle del pedido-------------------------
-#-----------------------Relacion entre pedido y plato--------------
+        return f"Producto {self.producto.nombre} en pedido {self.pedido.id}"
 
-class DetallePedido(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
+class PedidoMenu(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    cantidad = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.cantidad}x {self.menu.nombre} en pedido {self.pedido.id}"
+
+class PlatoProducto(models.Model):
     plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField()
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=2)
+    unidad = models.CharField(max_length=20)
 
     def __str__(self):
-        return f"{self.cantidad} x {self.plato.nombre}"
-    
-#-----------------------Empleado------------------------------------
+        return f"{self.cantidad} {self.unidad} de {self.producto.nombre} para {self.plato.nombre}"
+
+# ---------------------------- Venta -----------------------------
+
+class Venta(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    fecha = models.DateField(default=datetime.date.today)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    metodo_pago = models.CharField(max_length=20)
+    estado = models.CharField(max_length=20)
+    admin = models.ForeignKey(Administrador, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return f"Venta #{self.id} - Pedido {self.pedido.id}"
+
+# ---------------------------- Nómina -----------------------------
  
-class Empleado(models.Model):
-    ROLES = (
-        ("mesero", "Mesero"),
-        ("cocinero", "Cocinero"),
-        ("cajero", "Cajero"),
-        ("admin", "Administrador"),
-    )
+class Nomina(models.Model):
+    empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
-    cedula = models.CharField(max_length=20, unique=True)
-    correo = models.EmailField(unique=True)
-    telefono = models.CharField(max_length=20)
-    cargo = models.CharField(max_length=20, choices=ROLES)
+    valor_hora = models.DecimalField(max_digits=10, decimal_places=2)
+    pago = models.DecimalField(max_digits=10, decimal_places=2)
+    admin = models.ForeignKey(Administrador, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return f"{self.nombre} - {self.cargo}"   
-    
-#-----------------------Usuario------------------------------------
-class Usuario(models.Model):
-    nombre = models.CharField(max_length=100)
-    correo = models.EmailField(unique=True)
-    contraseña = models.CharField(max_length=128)  # en producción deberías encriptar
-
-    def __str__(self):
-        return self.nombre
-
-
-#------------------Modelos Angel-----------------------------
-#---------------------------Menu--------------------------------
-
-class Menu(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
-    platos = models.ManyToManyField(Plato, related_name='menus')
-    poductos= models.ManyToManyField(ProductoVentaDirecta, related_name='menus')
-
-    def __str__(self):
-        return self.nombre , self.platos.all(), self.poductos.all() 
-
-#---------------------------Categoria--------------------------------
-class categoria(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.nombre
-    
-#---------------------------Marca--------------------------------   
-class marca(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return self.nombre
+        return f"{self.nombre} - {self.pago}"
