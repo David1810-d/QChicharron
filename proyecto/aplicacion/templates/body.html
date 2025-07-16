@@ -5,7 +5,7 @@
 {% block body %}
 
 <body id="page-top">
-    
+
     {% include "header.html" %}
     <!-- Page Wrapper -->
     <div id="wrapper">           
@@ -508,6 +508,13 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div>
+        {% block tabla %}
+        <!-- This is where the content from prueba.html will be injected -->
+        {% endblock %}
+
     </div>
 
 
