@@ -10,7 +10,7 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Actualizar</button>
+        <a href="{% url 'apl:usuario_list' %}"><button type="submit">Actualizar</button></a>
     </form>
 </body>
 </html>
