@@ -10,4 +10,6 @@ urlpatterns = [
     path("p/", vista2,name="p"),
     path("prueba/", vista3, name="prueba"),
     path('usuarios/', UsuarioListView.as_view(), name='usuario_list'),
+    path('usuarios/editar/<int:pk>/', UsuarioUpdateView.as_view(), name='editar_usuario'),
+    path('usuarios/eliminar/<int:pk>/', UsuarioDeleteView.as_view(), name='eliminar_usuario'),
 ]
