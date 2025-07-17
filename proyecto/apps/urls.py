@@ -21,7 +21,7 @@ from aplicacion.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path("apps/", include ("aplicacion.urls")),
+    path("apps/", include ("aplicacion.urls", namespace="apl")),
     
 ]
 
