@@ -37,8 +37,8 @@
         <td>{{ u.contraseña }}</td>
 
         <td>
-        <a href="{% url 'apl:editar_usuario' u.id %}"><button type="button" class="btn btn-block btn-warning btn-sm mb-1"><i class="bi bi-pen-fill"></i></button></a>
-        <a href="{% url 'apl:eliminar_usuario' u.id %}"><button type="button" class="btn btn-block btn-danger btn-sm mb-1"><i class="bi bi-trash3-fill"></i></button></a>
+        <a href="{% url 'apl:editar_usuario' u.id %}"><button type="button" class="btn btn-block btn-warning btn-sm d-inline mb-1 "><i class="bi bi-pen-fill"></i></button></a>
+        <a href="{% url 'apl:eliminar_usuario' u.id %}"><button type="button" class="btn btn-block btn-danger btn-sm d-inline mb-1 "><i class="bi bi-trash3-fill"></i></button></a>
         </td>
     </tr>
     {% empty %}
@@ -50,6 +50,20 @@
     <script>
                       $(document).ready(function() {
                         $('#dataTable').DataTable({
+                            "language": {
+                                "lengthMenu": "Mostrar _MENU_ registros por página",
+                                "zeroRecords": "No se encontraron resultados",
+                                "info": "Mostrando página _PAGE_ de _PAGES_",
+                                "infoEmpty": "No hay registros disponibles",
+                                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                                "search": "Buscar:",
+                                "paginate": {
+                                    "first": "Primero",
+                                    "last": "Último",
+                                    "next": "Siguiente",
+                                    "previous": "Anterior"
+                                }
+                            }
                         
                         });
                       });
