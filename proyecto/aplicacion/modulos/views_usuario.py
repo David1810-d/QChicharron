@@ -1,8 +1,8 @@
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from aplicacion.models import *
 from aplicacion.modulos.views_usuario import *
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-
 from django.shortcuts import render
 
 
@@ -27,20 +27,33 @@ class UsuarioListView(ListView):
 
 class UsuarioUpdateView(UpdateView):
     model = Usuario
-    template_name = 'modulos/editar_usuario.html'
+    template_name = 'forms/formulario_actualizacion.html'
     fields = ['nombre', 'cedula', 'correo_electronico', 'numero_celular', 'estado', 'contraseña']
     
     def get_success_url(self):
-        return '/usuarios/'
+        return reverse_lazy('apl:usuario_list')
     
 class UsuarioDeleteView(DeleteView):
     model = Usuario
-    template_name = 'modulos/eliminar_usuario.html'
+    template_name = 'forms/confirmar_eliminacion.html'
     
     def get_success_url(self):
-        return '/usuarios/'
-    
+        return reverse_lazy('apl:usuario_list')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Eliminar usuario'
+        return context
+    
+class UsuarioCreateView(CreateView):
+    model = Usuario
+    template_name = 'forms/formulario_crear.html'
+    fields = ['nombre', 'cedula', 'correo_electronico', 'numero_celular', 'estado', 'contraseña']
+    
+    def get_success_url(self):
+        return reverse_lazy('apl:usuario_list')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Crear nuevo usuario'
         return context
