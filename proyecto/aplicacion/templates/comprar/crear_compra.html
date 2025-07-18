@@ -1,0 +1,13 @@
+{% extends "body_vistas_modelos.html" %}
+
+{% block tablas %}
+<div class="container mt-4">
+    <h2>Registrar Nueva Compra</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{% url 'apl:compra_listar' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

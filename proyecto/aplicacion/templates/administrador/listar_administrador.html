@@ -1,0 +1,79 @@
+{% extends "body_vistas_modelos.html" %}
+
+{% block tablas %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Administradores Registrados</h6>
+    </div>
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <div class="card shadow mb-4">
+
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Administradores</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered dataTable" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Correo</th>
+                                    <th>Teléfono</th>
+                                    <th>
+                                        <a href="{% url 'apl:administrador_crear' %}" class="btn btn-success btn-sm">
+                                            <i class="bi bi-plus-circle"></i> Agregar Administrador
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for administrador in administradores %}
+                                <tr>
+                                    <td>{{ administrador.nombre }}</td>
+                                    <td>{{ administrador.correo }}</td>
+                                    <td>{{ administrador.telefono }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'apl:administrador_editar' administrador.id %}"
+                                           class="btn btn-warning btn-sm d-inline">
+                                            <i class="bi bi-pen-fill"></i>
+                                        </a>
+                                        <a href="{% url 'apl:administrador_eliminar' administrador.id %}"
+                                           class="btn btn-danger btn-sm d-inline">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 col-md-5">
+                    <div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">
+                        Mostrando 1 a 10 de X registros
+                    </div>
+                </div>
+                <div class="col-sm-12 col-md-7">
+                    <div class="dataTables_paginate paging_simple_numbers" id="dataTable_paginate">
+                        <ul class="pagination">
+                            <li class="paginate_button page-item previous disabled" id="dataTable_previous">
+                                <a href="#" class="page-link">Anterior</a>
+                            </li>
+                            <li class="paginate_button page-item active">
+                                <a href="#" class="page-link">1</a>
+                            </li>
+                            <li class="paginate_button page-item next" id="dataTable_next">
+                                <a href="#" class="page-link">Siguiente</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
