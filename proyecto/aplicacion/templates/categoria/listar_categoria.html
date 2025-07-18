@@ -38,7 +38,7 @@
                                 {% for categoria in categorias %}
                                 <tr>
                                     <td>{{ categoria.nombre }}</td>
-                                    <td>{{ categoria.descripcion }}</td>
+                                    <td>{{ categoria.descripcion }}</td>    
                                     <td class="text-end">
                                         <a href="{% url 'apl:editar_categoria' categoria.id %}"
                                             class="btn btn-warning btn-sm d-inline"><i class="bi bi-pen-fill"></i></a>
