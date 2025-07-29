@@ -73,6 +73,13 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+class SalidaInventario(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=2)
+    motivo = models.CharField(max_length=200)  # Ej: "venta", "cocina", "merma", etc.
+
+
 class Compra(models.Model):
     id_factura = models.CharField(max_length=20, primary_key=True)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
