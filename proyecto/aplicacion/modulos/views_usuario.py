@@ -12,11 +12,11 @@ def prueba(request):
          'titulo':'lista de Usuarios',
          'usuarios': Usuario.objects.all()
      }
-     return render(request, 'modulos/prueba.html',data) 
+     return render(request, 'modulos/usuarios.html',data) 
  
 class UsuarioListView(ListView):
     model= Usuario 
-    template_name = 'modulos/prueba.html'
+    template_name = 'modulos/usuarios.html'
     context_object_name = 'usuarios'
     
     def get_context_data(self, **kwargs):
@@ -28,8 +28,8 @@ class UsuarioListView(ListView):
 class UsuarioUpdateView(UpdateView):
     model = Usuario
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['nombre', 'cedula', 'correo_electronico', 'numero_celular', 'estado', 'contraseña']
-    
+    fields = ['nombre', 'cedula', 'cargo', 'correo_electronico', 'numero_celular', 'estado', 'contraseña']
+
     def get_success_url(self):
         return reverse_lazy('apl:usuario_list')
     
@@ -48,8 +48,8 @@ class UsuarioDeleteView(DeleteView):
 class UsuarioCreateView(CreateView):
     model = Usuario
     template_name = 'forms/formulario_crear.html'
-    fields = ['nombre', 'cedula', 'correo_electronico', 'numero_celular', 'estado', 'contraseña']
-    
+    fields = ['nombre', 'cedula', 'cargo', 'correo_electronico', 'numero_celular', 'estado', 'contraseña']
+
     def get_success_url(self):
         return reverse_lazy('apl:usuario_list')
 
