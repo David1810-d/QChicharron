@@ -61,8 +61,81 @@
         </div>
     </div>
 </div>
+<!-- Modal vacío donde se cargará el HTML -->
+
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
+
+  <div class="modal-dialog">
+
+    <div class="modal-content" id="modalEliminarContent">
+
+      <!-- Aquí se inyectará el formulario de eliminación -->
+       {% include 'forms/confirmar_eliminacion.html'%}
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+<!-- Aquí va tu script personalizado -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const botonesEliminar = document.querySelectorAll('.btn-eliminar');
+
+  botonesEliminar.forEach(boton => {
+    boton.addEventListener('click', function () {
+      const url = this.getAttribute('data-url');
+
+      fetch(url)
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('modalEliminarContent').innerHTML = html;
+
+          const modal = new bootstrap.Modal(document.getElementById('modalEliminar'));
+          modal.show();
+
+          // Esperar a que el contenido del modal se cargue antes de agregar el listener al formulario
+          setTimeout(() => {
+            const form = document.getElementById('formEliminarCategoria');
+            form.addEventListener('submit', function (e) {
+              e.preventDefault(); // Evita la recarga
+
+              const formData = new FormData(form);
+
+              fetch(form.action || url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
+                }
+              })
+              .then(response => {
+                if (response.ok) {
+                  // Cierra el modal
+                  modal.hide();
+
+                  // Opcional: actualiza la lista o recarga solo parte de la página
+                  location.reload();  // También puedes usar AJAX aquí
+                } else {
+                  return response.text().then(html => {
+                    document.getElementById('modalEliminarContent').innerHTML = html;
+                  });
+                }
+              })
+              .catch(error => console.error('Error al eliminar:', error));
+            });
+          }, 100);
+        })
+        .catch(error => console.error('Error al cargar el modal:', error));
+    });
+  });
+});
+</script>
 {% endblock %}
 
-{% block scripts %}
 
-{% endblock %}

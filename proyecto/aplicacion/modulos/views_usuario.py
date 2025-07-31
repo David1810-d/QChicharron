@@ -43,7 +43,12 @@ class UsuarioDeleteView(DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Eliminar usuario'
-        return context
+        return context 
+    
+    def get(self, request, *args, **kwargs):
+        # Renderiza solo el contenido para el modal
+        self.object = self.get_object()
+        return render(request, self.template_name, {'object': self.object})
     
 class UsuarioCreateView(CreateView):
     model = Usuario
