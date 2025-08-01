@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from aplicacion.models import *
-from aplicacion.modulos.categoria.views import *
+from aplicacion.templates.modulos import *
 from  django.views.generic import *
 
 def listar_categoria(request): 
