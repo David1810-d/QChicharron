@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario</title>
-</head>
+{% extends 'layout.html' %}
+
+{% block content %}
 <body>
     <h1>Formulario de Mensaje</h1>
     <form method= "post">
@@ -13,4 +9,4 @@
         <a href="{% url 'apl:usuario_list' %}"><button type="submit">Enviar</button></a>
     </form>
 </body>
-</html>
+{% endblock %}
