@@ -10,6 +10,10 @@ from aplicacion.modulos.views_productos import *
 from aplicacion.modulos.views_proveedor import *
 from aplicacion.modulos.views_nomina import *
 from aplicacion.modulos.views_mesa import *
+from aplicacion.modulos.views_administrador import *
+from aplicacion.modulos.views_compra import *
+from aplicacion.modulos.views_venta import *
+from aplicacion.modulos.views_informe import *
 
 
 app_name = "apl"
@@ -62,4 +66,26 @@ urlpatterns = [
     path('mesas/crear/', MesaCreateView.as_view(), name='crear_mesa'),
     path('mesas/editar/<int:pk>/', MesaUpdateView.as_view(), name='editar_mesa'),
     path('mesas/eliminar/<int:pk>/', MesaDeleteView.as_view(), name='eliminar_mesa'),
+    #_________________________ Modulos de Administrador __________________________
+    path('administradores/listar/', AdministradorListView.as_view(), name='administrador_listar'),
+    path('administradores/crear/', AdministradorCreateView.as_view(), name='administrador_crear'),
+    path('administradores/editar/<int:pk>/', AdministradorUpdateView.as_view(), name='administrador_editar'),
+    path('administradores/eliminar/<int:pk>/', AdministradorDeleteView.as_view(), name='administrador_eliminar'),
+    #_________________________ Modulos de Compra __________________________
+    path('compras/listar/', CompraListView.as_view(), name='compra_listar'),
+    path('compras/crear/', CompraCreateView.as_view(), name='compra_crear'),
+    path('compras/editar/<str:pk>/', CompraUpdateView.as_view(), name='compra_editar'),
+    path('compras/eliminar/<str:pk>/', CompraDeleteView.as_view(), name='compra_eliminar'),
+    #_________________________ Modulos de Venta __________________________
+    path('ventas/listar/', VentaListView.as_view(), name='venta_listar'),
+    path('ventas/crear/', VentaCreateView.as_view(), name='venta_crear'),
+    path('ventas/editar/<int:pk>/', VentaUpdateView.as_view(), name='venta_editar'),
+    path('ventas/eliminar/<int:pk>/', VentaDeleteView.as_view(), name='venta_eliminar'),
+    #_________________________ Modulos de Informe  __________________________
+    path('informes/listar/', InformeListView.as_view(), name='informe_listar'),
+    path('informes/crear/', InformeCreateView.as_view(), name='informe_crear'),
+    path('informes/editar/<int:pk>/', InformeUpdateView.as_view(), name='informe_editar'),
+    path('informes/eliminar/<int:pk>/', InformeDeleteView.as_view(), name='informe_eliminar'),
 ]
+
+
