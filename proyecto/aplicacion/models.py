@@ -96,6 +96,7 @@ class Compra(models.Model):
 class Mesa(models.Model):
     capacidad = models.IntegerField()
     ubicacion = models.CharField(max_length=100)
+    numero = models.CharField(max_length=10, unique=True)
 
     def __str__(self):
         return f"Mesa {self.id} - {self.ubicacion}"
