@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Actualizar Categoria</h1>
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+     <h6 class="m-0 font-weight-bold text-primary">{{ titulo }}</h6>
+    <p>¿Estás seguro de que deseas eliminar  <strong>{{ object.nombre }}</strong>?</p>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <a href="{% url 'apl:usuario_list' %}"><button type="submit">Actualizar</button></a>
+        <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+        <button type="button" class="btn btn-secondary" onclick="window.history.back();">Cancelar</button>
+
     </form>
-</body>
-</html> yt
+</div>
+{% endblock %}

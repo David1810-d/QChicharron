@@ -9,11 +9,11 @@ def listar_categoria(request):
         "titulo":"Listado de Categorías",
         "categoria": Categoria.objects.all()  
           }
-    return render(request, 'categoria/listar_categoria.html', data)
+    return render(request, 'modulos/categoria.html', data)
 
 class CategoriaListView(ListView):
     model = Categoria
-    template_name = 'categoria/listar_categoria.html'
+    template_name = 'modulos/categoria.html'
     context_object_name = 'categorias'
     
     def get_context_data(self, **kwargs):
@@ -23,7 +23,7 @@ class CategoriaListView(ListView):
     
 class CategoriaCreateView(CreateView):
     model = Categoria
-    template_name = 'categoria/crear_categoria.html'
+    template_name = 'forms/formulario_crear.html'
     fields = ['nombre', 'descripcion']
     success_url = '/apps/categorias/listar/'
 
@@ -32,7 +32,7 @@ class CategoriaCreateView(CreateView):
 
 class CategoriaUpdateView(UpdateView):
     model = Categoria
-    template_name = 'categoria/editar_categoria.html'
+    template_name = 'forms/formulario_actualizacion.html'
     fields = ['nombre', 'descripcion']
     success_url = '/apps/categorias/listar/'
 
@@ -41,7 +41,7 @@ class CategoriaUpdateView(UpdateView):
 
 class CategoriaDeleteView(DeleteView):
     model = Categoria
-    template_name = 'categoria/eliminar_categoria.html'
+    template_name = 'forms/confirmar_eliminacion.html'
     success_url = '/apps/categorias/listar/'
 
     def get_context_data(self, **kwargs):
