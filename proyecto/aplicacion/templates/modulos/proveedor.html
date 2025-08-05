@@ -10,16 +10,10 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>id</th>
-                        <th>nombre</th>
-                        <th>cedula</th>
-                        <th>cargo</th>
-                        <th>correo_electronico</th>
-                        <th>numero_celular</th>
-                        <th>estado</th>
-                        <th>contraseña</th>
+                        <th>NIT</th>
+                        <th>Nombre</th>
                         <th>
-                            <a href="{% url 'apl:crear_usuario' %}">
+                            <a href="{% url 'apl:crear_proveedor' %}">
                                 <button type="button" class="btn btn-block btn-success btn-lg">
                                     <i class="bi bi-plus-circle-fill"></i>
                                 </button>
@@ -28,23 +22,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for u in usuarios %}
+                    {% for p in proveedores %}
                     <tr>
-                        <td>{{ u.id }}</td>
-                        <td>{{ u.nombre }}</td>
-                        <td>{{ u.cedula }}</td>
-                        <td>{{ u.cargo }}</td>
-                        <td>{{ u.correo_electronico }}</td>
-                        <td>{{ u.numero_celular }}</td>
-                        <td>{{ u.estado }}</td>
-                        <td>{{ u.contraseña }}</td>
+                        <td>{{ p.nit }}</td>
+                        <td>{{ p.nombre }}</td>
                         <td>
-                            <a href="{% url 'apl:editar_usuario' u.id %}">
+                            <a href="{% url 'apl:editar_proveedor' p.id %}">
                                 <button type="button" class="btn btn-warning btn-sm d-inline mb-1">
                                     <i class="bi bi-pen-fill"></i>
                                 </button>
                             </a>
-                            <a href="{% url 'apl:eliminar_usuario' u.id %}">
+                            <a href="{% url 'apl:eliminar_proveedor' p.id %}">
                                 <button type="button" class="btn btn-danger btn-sm d-inline mb-1">
                                     <i class="bi bi-trash3-fill"></i>
                                 </button>
@@ -53,7 +41,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9">No hay usuarios registrados.</td>
+                        <td colspan="3">No hay proveedores registrados.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -61,3 +49,4 @@
         </div>
     </div>
 </div>
+{% endblock %}

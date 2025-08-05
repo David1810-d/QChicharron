@@ -10,16 +10,13 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>id</th>
-                        <th>nombre</th>
-                        <th>cedula</th>
-                        <th>cargo</th>
-                        <th>correo_electronico</th>
-                        <th>numero_celular</th>
-                        <th>estado</th>
-                        <th>contraseña</th>
+                        <th>Empleado</th>
+                        <th>Nombre</th>
+                        <th>Valor por Hora</th>
+                        <th>Pago</th>
+                        <th>Administrador</th>
                         <th>
-                            <a href="{% url 'apl:crear_usuario' %}">
+                            <a href="{% url 'apl:crear_nomina' %}">
                                 <button type="button" class="btn btn-block btn-success btn-lg">
                                     <i class="bi bi-plus-circle-fill"></i>
                                 </button>
@@ -28,23 +25,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for u in usuarios %}
+                    {% for n in nominas %}
                     <tr>
-                        <td>{{ u.id }}</td>
-                        <td>{{ u.nombre }}</td>
-                        <td>{{ u.cedula }}</td>
-                        <td>{{ u.cargo }}</td>
-                        <td>{{ u.correo_electronico }}</td>
-                        <td>{{ u.numero_celular }}</td>
-                        <td>{{ u.estado }}</td>
-                        <td>{{ u.contraseña }}</td>
+                        <td>{{ n.empleado }}</td>
+                        <td>{{ n.nombre }}</td>
+                        <td>${{ n.valor_hora }}</td>
+                        <td>${{ n.pago }}</td>
+                        <td>{{ n.admin }}</td>
                         <td>
-                            <a href="{% url 'apl:editar_usuario' u.id %}">
+                            <a href="{% url 'apl:editar_nomina' n.id %}">
                                 <button type="button" class="btn btn-warning btn-sm d-inline mb-1">
                                     <i class="bi bi-pen-fill"></i>
                                 </button>
                             </a>
-                            <a href="{% url 'apl:eliminar_usuario' u.id %}">
+                            <a href="{% url 'apl:eliminar_nomina' n.id %}">
                                 <button type="button" class="btn btn-danger btn-sm d-inline mb-1">
                                     <i class="bi bi-trash3-fill"></i>
                                 </button>
@@ -53,7 +47,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9">No hay usuarios registrados.</td>
+                        <td colspan="6">No hay registros de nómina.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -61,3 +55,4 @@
         </div>
     </div>
 </div>
+{% endblock %}
