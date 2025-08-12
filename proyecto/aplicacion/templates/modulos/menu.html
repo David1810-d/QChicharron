@@ -15,7 +15,7 @@
                             <th>Descripción</th>
                             <th>Precio</th>
                             <th>
-                                <a href="{% url 'apl:formulario_crear_menu.html' %}" class="btn btn-success btn-sm">
+                                <a href="{% url 'apl:menu_create' %}" class="btn btn-success btn-sm">
                                     <i class="bi bi-plus-circle"></i> Agregar Menú
                                 </a>
                             </th>
@@ -28,10 +28,10 @@
                             <td>{{ menu.descripcion }}</td>
                             <td>${{ menu.precio|floatformat:2 }}</td>
                             <td class="text-end">
-                                <a href="{% url 'apl:formulario_actualizacion_menu.html' menu.id %}" class="btn btn-warning btn-sm d-inline">
+                                <a href="{% url 'apl:menu_update' menu.id %}" class="btn btn-warning btn-sm d-inline">
                                     <i class="bi bi-pen-fill"></i>
                                 </a>
-                                <a href="{% url 'apl:confirmar_eliminacion_menu.html' menu.id %}" class="btn btn-danger btn-sm d-inline">
+                                <a href="{% url 'apl:menu_delete' menu.id %}" class="btn btn-danger btn-sm d-inline">
                                     <i class="bi bi-trash3-fill"></i>
                                 </a>
                             </td>
