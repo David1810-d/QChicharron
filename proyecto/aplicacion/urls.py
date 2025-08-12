@@ -33,7 +33,6 @@ urlpatterns = [
     path('categorias/listar/', CategoriaListView.as_view(), name='listar_categoria'),
     path('categorias/crear/', CategoriaCreateView.as_view(), name='crear_categoria'),
     path('categorias/editar/<int:pk>/', CategoriaUpdateView.as_view(), name='editar_categoria'),
-HEAD
     path('categorias/eliminar/<int:pk>/', CategoriaDeleteView.as_view(), name='eliminar_categoria'),
     #
         # URLs para Marca
@@ -107,7 +106,6 @@ HEAD
     path('informes/crear/', InformeCreateView.as_view(), name='informe_crear'),
     path('informes/editar/<int:pk>/', InformeUpdateView.as_view(), name='informe_editar'),
     path('informes/eliminar/<int:pk>/', InformeDeleteView.as_view(), name='informe_eliminar'),
-a816a6c97d71366242c1ab34bdfc697b8936f837
 ]
 
 
