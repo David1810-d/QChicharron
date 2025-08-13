@@ -6,7 +6,8 @@
 <link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
 
 <div class="form-container">
-    <h1>🍽️ Formulario de Mensaje</h1>
+    {{ titulo}}
+    
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

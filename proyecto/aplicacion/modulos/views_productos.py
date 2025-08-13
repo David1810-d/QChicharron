@@ -15,6 +15,7 @@ class ProductoListView(ListView):
         context['titulo'] = 'Lista de productos'
         context['modelo'] = 'producto'
         return context
+  
 
 class ProductoCreateView(CreateView):
     model = Producto

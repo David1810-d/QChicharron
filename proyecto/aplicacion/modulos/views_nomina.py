@@ -25,6 +25,7 @@ class NominaCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear Nómina'
         return context
+   
 
 class NominaUpdateView(UpdateView):
     model = Nomina
