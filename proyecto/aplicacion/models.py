@@ -31,7 +31,7 @@ class Administrador(models.Model):
     def __str__(self):
         return f"Admin {self.usuario.nombre}"
 
-# ---------------------------- Proveedor, Marca, Categoría -----------------------------
+# ---------------------------- Proveedor, Marca, Categoría, unidad-----------------------------
 
 class Proveedor(models.Model):
     nit = models.CharField(max_length=20, unique=True)
@@ -54,22 +54,23 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+class Unidad(models.Model):
+    nombre = models.CharField(max_length=50)  # Ej: kg, L, unidades
+    descripcion = models.CharField(max_length=100, blank=True, null=True)  # opcional
+
+    def __str__(self):
+        return self.nombre
 
 # ---------------------------- Producto y Compra -----------------------------
 
 class Producto(models.Model):
-    TIPO_USO = (
-        ('plato', 'Plato'),
-        ('venta', 'Venta directa'),
-    )
 
-    id_producto = models.CharField(max_length=50, primary_key=True)
     nombre = models.CharField(max_length=100)
     marca = models.ForeignKey(Marca, on_delete=models.SET_NULL, null=True)
-    fecha = models.DateField(default=datetime.date.today)
     categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
+    unidad = models.ForeignKey(Unidad, on_delete=models.SET_NULL, null=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
-    tipo_uso = models.CharField(max_length=10, choices=TIPO_USO)
 
     def __str__(self):
         return self.nombre
@@ -136,27 +137,42 @@ class Plato(models.Model):
 
 class PedidoProducto(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey(
+        Producto, 
+        on_delete=models.CASCADE,
+        related_name="pedidos_producto"
+    )
 
     def __str__(self):
         return f"Producto {self.producto.nombre} en pedido {self.pedido.id}"
 
+
 class PedidoMenu(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    menu = models.ForeignKey(
+        Menu, 
+        on_delete=models.CASCADE,
+        related_name="pedidos_menu"
+    )
     cantidad = models.IntegerField()
 
     def __str__(self):
         return f"{self.cantidad}x {self.menu.nombre} en pedido {self.pedido.id}"
 
+
 class PlatoProducto(models.Model):
     plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey(
+        Producto, 
+        on_delete=models.CASCADE,
+        related_name="platos_producto"
+    )
     cantidad = models.DecimalField(max_digits=10, decimal_places=2)
     unidad = models.CharField(max_length=20)
 
     def __str__(self):
         return f"{self.cantidad} {self.unidad} de {self.producto.nombre} para {self.plato.nombre}"
+
 
 # ---------------------------- Venta -----------------------------
 

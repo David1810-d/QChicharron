@@ -17,7 +17,7 @@ from aplicacion.modulos.views_administrador import *
 from aplicacion.modulos.views_compra import *
 from aplicacion.modulos.views_venta import *
 from aplicacion.modulos.views_informe import *
-
+from aplicacion.modulos.views_unidad import *
 
 app_name = "apl"
 
@@ -106,6 +106,12 @@ urlpatterns = [
     path('informes/crear/', InformeCreateView.as_view(), name='informe_crear'),
     path('informes/editar/<int:pk>/', InformeUpdateView.as_view(), name='informe_editar'),
     path('informes/eliminar/<int:pk>/', InformeDeleteView.as_view(), name='informe_eliminar'),
+    #_________________________ Modulos de Unidad  __________________________
+        # Unidades
+    path('unidades/', UnidadListView.as_view(), name='unidad_list'),
+    path('unidades/crear/', UnidadCreateView.as_view(), name='crear_unidad'),
+    path('unidades/editar/<int:pk>/', UnidadUpdateView.as_view(), name='editar_unidad'),
+    path('unidades/eliminar/<int:pk>/', UnidadDeleteView.as_view(), name='eliminar_unidad'),
 ]
 
 

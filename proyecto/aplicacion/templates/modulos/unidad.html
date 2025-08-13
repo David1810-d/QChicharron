@@ -10,15 +10,11 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>ID Producto</th>
+                        <th>ID Unidad</th>
                         <th>Nombre</th>
-                        <th>Marca</th>
-                       
-                        <th>Categoría</th>
-                        <th>Proveedor</th>
-                        <th>unidades</th>
+                        <th>Descripción</th>
                         <th>
-                            <a href="{% url 'apl:crear_producto' %}">
+                            <a href="{% url 'apl:crear_unidad' %}">
                                 <button type="button" class="btn btn-block btn-success btn-lg">
                                     <i class="bi bi-plus-circle-fill"></i>
                                 </button>
@@ -27,22 +23,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for p in productos %}
+                    {% for u in unidades %}
                     <tr>
-                        <td>{{ p.id }}</td>
-                        <td>{{ p.nombre }}</td>
-                        <td>{{ p.marca }}</td>
-                     
-                        <td>{{ p.categoria }}</td>
-                        <td>{{ p.proveedor }}</td>
-                        <td>{{ p.unidad }}</td>
+                        <td>{{ u.id }}</td>
+                        <td>{{ u.nombre }}</td>
+                        <td>{{ u.descripcion }}</td>
                         <td>
-                            <a href="{% url 'apl:editar_producto' p.id %}">
+                            <a href="{% url 'apl:editar_unidad' u.id %}">
                                 <button type="button" class="btn btn-warning btn-sm d-inline mb-1">
                                     <i class="bi bi-pen-fill"></i>
                                 </button>
                             </a>
-                            <a href="{% url 'apl:eliminar_producto' p.id %}">
+                            <a href="{% url 'apl:eliminar_unidad' u.id %}">
                                 <button type="button" class="btn btn-danger btn-sm d-inline mb-1">
                                     <i class="bi bi-trash3-fill"></i>
                                 </button>
@@ -51,7 +43,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8">No hay productos registrados.</td>
+                        <td colspan="4">No hay unidades registradas.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
