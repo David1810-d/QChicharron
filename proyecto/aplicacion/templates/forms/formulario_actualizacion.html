@@ -1,11 +1,19 @@
 {% extends "layout.html" %}
+{% load static %}
+
 {% block content %}
-<body>
-    <h1>Actualizar Categoria</h1>
+<link rel="stylesheet" href="{% static 'lib/css/forms.css' %}">
+<link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
+
+<div class="form-container">
+    <h1>✏️ Actualizar Categoría</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <a href="{% url 'apl:usuario_list' %}"><button type="submit">Actualizar</button></a>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
     </form>
-</body>
+    <div class="back-link">
+        <a href="{% url 'apl:usuario_list' %}">← Volver</a>
+    </div>
+</div>
 {% endblock %}
