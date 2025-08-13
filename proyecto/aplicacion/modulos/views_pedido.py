@@ -29,6 +29,12 @@ class PedidoCreateView(CreateView):
     def form_valid(self, form):
         return super().form_valid(form)
     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context ['titulo'] = 'Crear Pedido'
+        context ['entidad'] = 'Pedido'
+        return context
+    
 class PedidoUpdateView(UpdateView):
     model = Pedido
     template_name = 'forms/formulario_actualizacion.html'

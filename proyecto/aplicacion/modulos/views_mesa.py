@@ -25,6 +25,7 @@ class MesaCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear Mesa'
         return context
+  
 
 class MesaUpdateView(UpdateView):
     model = Mesa

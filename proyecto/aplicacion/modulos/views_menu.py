@@ -35,6 +35,7 @@ class MenuCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear nuevo Menú'
         return context
+    
 
 class MenuUpdateView(UpdateView):
     model = Menu

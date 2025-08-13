@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
 
 <div class="form-container">
-    <h1>✏️ Actualizar Categoría</h1>
+    {{ titulo}}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
