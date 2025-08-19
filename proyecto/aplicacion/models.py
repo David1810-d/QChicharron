@@ -108,8 +108,7 @@ class Pedido(models.Model):
     mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE)
     fecha = models.DateTimeField(default=timezone.now)  # ← CORREGIDO
     estado = models.CharField(max_length=20, choices=[
-        ('pendiente', 'Pendiente'),
-        ('en_proceso', 'En proceso'),
+        ('pendiente', 'Pendiente'), 
         ('entregado', 'Entregado')
     ])
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
