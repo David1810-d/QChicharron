@@ -70,34 +70,13 @@ class Unidad(models.Model):
 class Producto(models.Model):
 
     nombre = models.CharField(max_length=100)
-    marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True) 
-    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
-    unidad = models.ForeignKey(Unidad, on_delete=models.CASCADE, null=False, blank=False)
-
-    tipo_uso = models.CharField(
-        max_length=20,
-        choices=[('plato', 'Plato'), ('venta', 'Venta')],
-    )
-    
-    stock = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0)
-
-    def reducir_stock(self, cantidad):
-
-            if self.stock >= cantidad:
-                self.stock -= cantidad
-                self.save()
-            else:
-                raise ValueError("No hay suficiente stock")
-
+    marca = models.ForeignKey(Marca, on_delete=models.SET_NULL, null=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
+    unidad = models.ForeignKey(Unidad, on_delete=models.SET_NULL, null=True)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-
-        return f"{self.nombre} ({self.stock})"
-
-      
-
+        return self.nombre
 
 class SalidaInventario(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
