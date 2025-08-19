@@ -131,6 +131,12 @@ class Plato(models.Model):
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
 
+    productos = models.ManyToManyField(
+        Producto,
+        through="PlatoProducto",
+        related_name="platos"
+    )
+
     def __str__(self):
         return self.nombre
 

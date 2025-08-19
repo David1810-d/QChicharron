@@ -11,10 +11,10 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Enviar Pedido</button>
+        <button type="submit">Enviar</button>
     </form>
     <div class="back-link">
-        <a href="{% url 'apl:usuario_list' %}">← Volver al Menú</a>
+        <a href="{% url 'apl:usuario_list' %}">Volver</a>
     </div>
 </div>
 {% endblock %}
