@@ -1,8 +1,5 @@
-# views_producto.py
-
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.shortcuts import render
 from aplicacion.models import Producto
 
 class ProductoListView(ListView):
@@ -20,7 +17,7 @@ class ProductoListView(ListView):
 class ProductoCreateView(CreateView):
     model = Producto
     template_name = 'forms/formulario_crear.html'
-    fields = [ 'nombre', 'marca', 'categoria', 'proveedor', 'unidad']
+    fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'tipo_medida', 'stock_unidades', 'stock_kg']
 
     def get_success_url(self):
         return reverse_lazy('apl:producto_list')
@@ -30,13 +27,15 @@ class ProductoCreateView(CreateView):
         context['titulo'] = 'Crear producto'
         return context
 
+
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'forms/formulario_actualizacion.html'
-    fields = [ 'nombre', 'marca', 'categoria', 'proveedor', 'unidad']
+    fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'tipo_medida', 'stock_unidades', 'stock_kg']
 
     def get_success_url(self):
         return reverse_lazy('apl:producto_list')
+
 
 class ProductoDeleteView(DeleteView):
     model = Producto
