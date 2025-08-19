@@ -69,13 +69,45 @@ class Unidad(models.Model):
 class Producto(models.Model):
 
     nombre = models.CharField(max_length=100)
-    marca = models.ForeignKey(Marca, on_delete=models.SET_NULL, null=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
-    unidad = models.ForeignKey(Unidad, on_delete=models.SET_NULL, null=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.SET_NULL, null=True)
+    marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+
+    tipo_uso = models.CharField(
+        max_length=20,
+        choices=[('plato', 'Plato'), ('venta', 'Venta')],
+    )
+
+    tipo_medida = models.CharField(
+        max_length=20,
+        choices=[('unidad', 'Unidad'), ('kg', 'Kilogramos')],
+        default='unidad'
+    )
+
+    stock_unidades = models.IntegerField(null=True, blank=True, default=0)
+    stock_kg = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0)
+
+    def reducir_stock(self, cantidad):
+        if self.tipo_medida == 'unidad':
+            if self.stock_unidades >= cantidad:
+                self.stock_unidades -= cantidad
+                self.save()
+            else:
+                raise ValueError("No hay suficiente stock en unidades")
+        elif self.tipo_medida == 'kg':
+            if self.stock_kg >= cantidad:
+                self.stock_kg -= cantidad
+                self.save()
+            else:
+                raise ValueError("No hay suficiente stock en kg")
 
     def __str__(self):
-        return self.nombre
+        if self.tipo_medida == 'unidad':
+            return f"{self.nombre} ({self.stock_unidades} unidades)"
+        else:
+            return f"{self.nombre} ({self.stock_kg} kg)"
+
 
 class SalidaInventario(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
