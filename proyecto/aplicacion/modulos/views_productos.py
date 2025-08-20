@@ -17,7 +17,7 @@ class ProductoListView(ListView):
 class ProductoCreateView(CreateView):
     model = Producto
     template_name = 'forms/formulario_crear.html'
-    fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'tipo_medida', 'stock_unidades', 'stock_kg']
+    fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
 
     def get_success_url(self):
         return reverse_lazy('apl:producto_list')
@@ -31,7 +31,7 @@ class ProductoCreateView(CreateView):
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'tipo_medida', 'stock_unidades', 'stock_kg']
+    fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
 
     def get_success_url(self):
         return reverse_lazy('apl:producto_list')
