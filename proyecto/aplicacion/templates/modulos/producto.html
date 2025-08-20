@@ -16,11 +16,13 @@
         <th>Marca</th>
         <th>Categoría</th>
         <th>Proveedor</th>
-        <th>Unidad</th>
+        
         <th>Fecha</th>
+        
+        <th>Unidad</th>
+
+        <th>Stock</th>
         <th>Detalle</th>
-        <th>Stock_unidades</th>
-        <th>Stock_kilogramos</th>
         
                         <th>  <a href="{% url 'apl:crear_producto' %}">
                                 <button type="button" class="btn btn-block btn-success btn-lg">
@@ -36,11 +38,13 @@
         <td>{{ p.marca }}</td>
         <td>{{ p.categoria }}</td>
         <td>{{ p.proveedor }}</td>
-        <td>{{ p.tipo_medida }}</td>
+       
         <td>{{ p.fecha }}</td>
+        
+
+        <td>{{ p.unidad }}</td>
+        <td>{{ p.stock }}</td>
         <td>{{ p.tipo_uso}}</td>
-        <td>{{ p.stock_unidades }}</td>
-        <td>{{ p.stock_kg}}</td>
         <td>
             <a href="{% url 'apl:editar_producto' p.id %}">
                 <button type="button" class="btn btn-warning btn-sm d-inline mb-1">

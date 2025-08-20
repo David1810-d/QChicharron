@@ -70,43 +70,32 @@ class Producto(models.Model):
 
     nombre = models.CharField(max_length=100)
     marca = models.ForeignKey(Marca, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True)
+    fecha = models.DateTimeField(auto_now_add=True) 
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+    unidad = models.ForeignKey(Unidad, on_delete=models.CASCADE, null=False, blank=False)
 
     tipo_uso = models.CharField(
         max_length=20,
         choices=[('plato', 'Plato'), ('venta', 'Venta')],
     )
-
-    tipo_medida = models.CharField(
-        max_length=20,
-        choices=[('unidad', 'Unidad'), ('kg', 'Kilogramos')],
-        default='unidad'
-    )
-
-    stock_unidades = models.IntegerField(null=True, blank=True, default=0)
-    stock_kg = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0)
+    
+    stock = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0)
 
     def reducir_stock(self, cantidad):
-        if self.tipo_medida == 'unidad':
-            if self.stock_unidades >= cantidad:
-                self.stock_unidades -= cantidad
+
+            if self.stock >= cantidad:
+                self.stock -= cantidad
                 self.save()
             else:
-                raise ValueError("No hay suficiente stock en unidades")
-        elif self.tipo_medida == 'kg':
-            if self.stock_kg >= cantidad:
-                self.stock_kg -= cantidad
-                self.save()
-            else:
-                raise ValueError("No hay suficiente stock en kg")
+                raise ValueError("No hay suficiente stock")
+
 
     def __str__(self):
-        if self.tipo_medida == 'unidad':
-            return f"{self.nombre} ({self.stock_unidades} unidades)"
-        else:
-            return f"{self.nombre} ({self.stock_kg} kg)"
+
+        return f"{self.nombre} ({self.stock})"
+
+      
 
 
 class SalidaInventario(models.Model):
