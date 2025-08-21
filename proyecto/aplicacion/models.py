@@ -11,7 +11,7 @@ class Usuario(models.Model):
     correo_electronico = models.EmailField()
     numero_celular = models.CharField(max_length=20)
     estado = models.CharField(max_length=20, choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')])
-    contraseña = models.CharField(max_length=255)
+    contraseña = models.CharField(max_length=250)
 
     def __str__(self):
         return self.nombre

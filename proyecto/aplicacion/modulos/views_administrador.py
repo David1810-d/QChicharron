@@ -35,7 +35,7 @@ class AdministradorCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context ['titulo'] = 'Crear administrador'
-        context ['entidad'] = 'Administrador'
+        context['modulo'] = "administrador"
         return context
 
 

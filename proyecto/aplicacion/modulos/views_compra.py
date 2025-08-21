@@ -34,7 +34,7 @@ class CompraCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context ['titulo'] = 'Crear Compra'
-        context ['entidad'] = 'Compra'
+        context['modulo'] = "compra"
         return context
 
 class CompraUpdateView(UpdateView):
