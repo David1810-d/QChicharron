@@ -32,7 +32,7 @@ class PedidoCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context ['titulo'] = 'Crear Pedido'
-        context ['entidad'] = 'Pedido'
+        context['modulo'] = "pedido"
         return context
     
 class PedidoUpdateView(UpdateView):

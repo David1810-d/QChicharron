@@ -72,7 +72,7 @@ urlpatterns = [
     path('productos/editar/<str:pk>/', ProductoUpdateView.as_view(), name='editar_producto'),
     path('productos/eliminar/<str:pk>/', ProductoDeleteView.as_view(), name='eliminar_producto'),
     #_________________________ Modulos de Proveedor __________________________
-      path('proveedores/', ProveedorListView.as_view(), name='proveedor_list'),
+    path('proveedores/', ProveedorListView.as_view(), name='proveedor_list'),
     path('proveedores/crear/', ProveedorCreateView.as_view(), name='crear_proveedor'),
     path('proveedores/editar/<int:pk>/', ProveedorUpdateView.as_view(), name='editar_proveedor'),
     path('proveedores/eliminar/<int:pk>/', ProveedorDeleteView.as_view(), name='eliminar_proveedor'),

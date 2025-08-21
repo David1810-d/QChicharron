@@ -6,15 +6,24 @@
 <link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
 
 <div class="form-container">
-    {{ titulo}}
+    {{ titulo }}
     
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Enviar Pedido</button>
+
+        <div class="d-flex justify-content-end mt-3">
+            <!-- Botón de enviar -->
+            <button type="submit" class="btn btn-warning btn-lg me-2">
+             {{titulo}}
+            </button>
+
+            <!-- Botón de volver -->
+           <button type="button" onclick="window.history.back();">Volver</button>
+
+        </div>
     </form>
-    <div class="back-link">
-        <a href="{% url 'apl:usuario_list' %}">← Volver al Menú</a>
-    </div>
 </div>
+
 {% endblock %}
+
