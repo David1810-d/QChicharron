@@ -33,7 +33,7 @@ class PlatoCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context ['titulo'] = 'Crear     Plato'   
-        context ['entidad'] = 'Plato'
+        context['modulo'] = "plato"
         return context
 
 class PlatoUpdateView(UpdateView):

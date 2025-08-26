@@ -25,6 +25,7 @@ class ProductoCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear producto'
+        context['modulo'] = "producto"
         return context
 
 
