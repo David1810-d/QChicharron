@@ -10,6 +10,15 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+                {% if formset %}
+            <h3>Productos</h3>
+            {{ formset.management_form }}
+            {% for f in formset %}
+                <div class="producto-form">
+                    {{ f.as_p }}
+                </div>
+            {% endfor %}
+        {% endif %}
         <button type="submit" class="btn btn-primary">Actualizar</button>
     </form>
     <div class="back-link">
