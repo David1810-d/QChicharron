@@ -245,4 +245,4 @@ class Informe(models.Model):
     creado_por = models.ForeignKey('Administrador', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return f"{self.titulo} ({self.tipo}) - {self.fecha_inicio} a {self.fecha_fin}"
+        return f"{self.titulo} ({self.tipo}) - {self.fecha_inicio} a {self.fecha_fin}"   
