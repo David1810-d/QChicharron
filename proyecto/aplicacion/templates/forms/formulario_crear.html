@@ -11,6 +11,17 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+        <div class="formset-container">
+            {{ formset.management_form }}
+            {% for form in formset %}
+                <div class="formset-form">
+                    {{ form.as_p }}
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#productoModal">
+            Agregar Producto
+        </button>
         <button type="submit">Enviar</button>
     </form>
     <div class="back-link">
