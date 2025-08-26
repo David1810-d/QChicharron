@@ -23,5 +23,6 @@ urlpatterns = [
 
     path("apps/", include ("aplicacion.urls", namespace="apl")),
     
+    path("select2/", include("django_select2.urls")),
 ]
 

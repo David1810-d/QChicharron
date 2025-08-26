@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from aplicacion.models import *
 from django.views.generic import *
+from aplicacion.forms import PlatoForm, PlatoProductoFormSet
+from django.urls import reverse_lazy
 
 
 def listar_plato(request):
@@ -23,27 +25,73 @@ class PlatoListView(ListView):
     
 class PlatoCreateView(CreateView):
     model = Plato
+    form_class = PlatoForm
     template_name = 'forms/formulario_crear.html'
-    fields = ['nombre', 'descripcion', 'precio']
-    success_url = '/apps/platos/listar/'
-    
-    def form_valid(self, form):
-        return super().form_valid(form)
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context ['titulo'] = 'Crear     Plato'   
-        context ['entidad'] = 'Plato'
-        return context
+    success_url = reverse_lazy('apl:listar_plato')
+
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        form = self.get_form()
+        formset = PlatoProductoFormSet()
+        return render(request, self.template_name, {
+            'form': form,
+            'formset': formset,
+            'titulo': 'Crear Plato',
+            'entidad': 'Plato'
+        })
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form = self.get_form()
+        formset = PlatoProductoFormSet(self.request.POST)
+
+        if form.is_valid() and formset.is_valid():
+            plato = form.save()
+            formset.instance = plato
+            formset.save()
+            return redirect(self.success_url)
+
+        return render(request, self.template_name, {
+            'form': form,
+            'formset': formset,
+            'titulo': 'Crear Plato',
+            'entidad': 'Plato'
+        })
 
 class PlatoUpdateView(UpdateView):
     model = Plato
+    form_class = PlatoForm
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['nombre', 'descripcion', 'precio']
-    success_url = '/apps/platos/listar/'
-    
-    def form_valid(self, form):
-        return super().form_valid(form)
+    success_url = reverse_lazy('apl:listar_plato')
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        formset = PlatoProductoFormSet(instance=self.object)
+        return render(request, self.template_name, {
+            'form': form,
+            'formset': formset,
+            'titulo': 'Editar Plato',
+            'entidad': 'Plato'
+        })
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        formset = PlatoProductoFormSet(self.request.POST, instance=self.object)
+
+        if form.is_valid() and formset.is_valid():
+            plato = form.save()
+            formset.instance = plato
+            formset.save()
+            return redirect(self.success_url)
+
+        return render(request, self.template_name, {
+            'form': form,
+            'formset': formset,
+            'titulo': 'Editar Plato',
+            'entidad': 'Plato'
+        })
     
 class PlatoDeleteView(DeleteView):
     model = Plato
