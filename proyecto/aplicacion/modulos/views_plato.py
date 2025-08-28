@@ -26,7 +26,7 @@ class PlatoListView(ListView):
 class PlatoCreateView(CreateView):
     model = Plato
     form_class = PlatoForm
-    template_name = 'forms/formulario_crear.html'
+    template_name = 'forms/formulario_crear_plato.html'
     success_url = reverse_lazy('apl:listar_plato')
 
     def get(self, request, *args, **kwargs):

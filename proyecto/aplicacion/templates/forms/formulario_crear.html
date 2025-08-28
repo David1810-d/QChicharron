@@ -11,72 +11,25 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
+
+        {% if formset %}
+        {{ formset.management_form }}
+        {% endif %}
+
         <div class="formset-container">
-            {{ formset.management_form }}
             {% for form in formset %}
                 <div class="formset-form">
                     {{ form.as_p }}
                 </div>
             {% endfor %}
         </div>
-        <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#productoModal">
-            Agregar Producto
-        </button>
         <button type="submit">Enviar</button>
+
+        {% block extra %}{% endblock %}
     </form>
     <div class="back-link">
-        <a href="{% url 'apl:usuario_list' %}">Volver</a>
+        <button type="button" onclick="window.history.back();">Volver</button>
     </div>
 </div>
-
-<!-- Modal -->
-<div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      
-      <!-- Header -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="productoModalLabel">Agregar Producto</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      
-      <!-- Body: aquí va tu formulario -->
-      <div class="modal-body">
-        <form id="productoForm">
-          {% csrf_token %}
-          {{ formset.empty_form.as_p }}
-        </form>
-      </div>
-      
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="guardarProducto">Guardar Producto</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<script>
-document.getElementById("guardarProducto").addEventListener("click", function() {
-    let formContainer = document.querySelector("#productoForm").innerHTML;
-
-    // Crear un nuevo contenedor para el producto
-    let newDiv = document.createElement("div");
-    newDiv.classList.add("producto-form");
-    newDiv.innerHTML = formContainer;
-
-    // Insertar el nuevo producto en la lista
-    document.querySelector(".form-container form").insertBefore(
-        newDiv,
-        document.querySelector(".form-container form button[type='submit']")
-    );
-
-    // Cerrar modal
-    let modal = bootstrap.Modal.getInstance(document.getElementById("productoModal"));
-    modal.hide();
-});
-</script>
 
 {% endblock %}
