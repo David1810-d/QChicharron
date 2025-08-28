@@ -20,70 +20,16 @@
                     {{ f.as_p }}
                 </div>
             {% endfor %}
+
         {% endif %}
-
-        <!-- Botón para abrir modal y agregar producto -->
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#productoModal">
-            + Agregar Producto
-        </button>
-
         <button type="submit" class="btn btn-primary">Actualizar</button>
+
+        {% block actu %}{% endblock %}
     </form>
 
     <div class="back-link">
         <button type="button" onclick="window.history.back();">Volver</button>
     </div>
 </div>
-
-<!-- Modal -->
-<div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      
-      <!-- Header -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="productoModalLabel">Agregar Producto</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      
-      <!-- Body: usamos el empty_form -->
-      <div class="modal-body">
-        <form id="productoForm">
-          {% csrf_token %}
-          {{ formset.empty_form.as_p }}
-        </form>
-      </div>
-      
-      <!-- Footer -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="guardarProducto">Guardar Producto</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<script>
-document.getElementById("guardarProducto").addEventListener("click", function() {
-    let formContainer = document.querySelector("#productoForm").innerHTML;
-
-    // Crear un nuevo contenedor para el producto
-    let newDiv = document.createElement("div");
-    newDiv.classList.add("producto-form", "border", "p-2", "mb-2", "rounded");
-    newDiv.innerHTML = formContainer;
-
-    // Insertar el nuevo producto en la lista
-    document.getElementById("productosContainer").appendChild(newDiv);
-
-    // Actualizar TOTAL_FORMS del formset
-    let totalForms = document.querySelector("#id_" + "{{ formset.prefix }}-TOTAL_FORMS");
-    totalForms.value = parseInt(totalForms.value) + 1;
-
-    // Cerrar modal
-    let modal = bootstrap.Modal.getInstance(document.getElementById("productoModal"));
-    modal.hide();
-});
-</script>
 
 {% endblock %}
