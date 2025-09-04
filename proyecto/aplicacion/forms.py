@@ -7,7 +7,7 @@ from django_select2.forms import *
 #   class Meta:
 #       model = Mensaje
 #       fields = ['nombre', 'contenido']
-
+#ewfergergf
 
 
 class PlatoForm(forms.ModelForm):
@@ -31,3 +31,4 @@ PlatoProductoFormSet = inlineformset_factory(
     extra=1,
     can_delete=True
 )
+#sdfgdfhfg
