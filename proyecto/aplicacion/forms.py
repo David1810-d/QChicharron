@@ -8,6 +8,8 @@ from django_select2.forms import *
 #       model = Mensaje
 #       fields = ['nombre', 'contenido']
 
+
+
 class PlatoForm(forms.ModelForm):
     class Meta:
         model = Plato
