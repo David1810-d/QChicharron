@@ -1,0 +1,134 @@
+{% extends 'forms/formulario_crear.html' %}
+#fdsgdfc
+{% block extra %}
+    <!-- Botón -->
+    <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#productoModal">
+        Agregar Producto
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          
+          <!-- Header -->
+          <div class="modal-header">
+            <h5 class="modal-title">Agregar Producto</h5>
+            <button type="button" class="btn" data-bs-dismiss="modal">×</button>
+          </div>
+          
+          <!-- Body -->
+          <div class="modal-body" id="modalFormContainer">
+            {% csrf_token %}
+            {{ formset.empty_form.as_p }}
+          </div>
+          
+          <!-- Footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="guardarProducto">Guardar Producto</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    
+    function setupGuardarButton() {
+        const guardarBtn = document.getElementById("guardarProducto");
+        if (!guardarBtn) {
+            setTimeout(setupGuardarButton, 100);
+            return;
+        }
+        
+        guardarBtn.addEventListener("click", function () {
+            console.log("=== INICIANDO GUARDADO ===");
+            
+            const totalForms = document.querySelector("input[name$='TOTAL_FORMS']");
+            const container = document.querySelector(".formset-container");
+            const modalContainer = document.getElementById("modalFormContainer");
+            
+            if (!totalForms || !container || !modalContainer) {
+                alert("ERROR: No se encontraron los elementos necesarios");
+                return;
+            }
+            
+            const formIndex = totalForms.value;
+            console.log("Índice actual:", formIndex);
+            
+            // OBTENER VALORES DIRECTAMENTE DEL MODAL
+            const productoSelect = document.querySelector("select[name*='__prefix__-producto']");
+            const cantidadInput = document.querySelector("input[name*='__prefix__-cantidad']");
+            const unidadInput = document.querySelector("input[name*='__prefix__-unidad']");
+            
+            console.log("Producto select:", productoSelect);
+            console.log("Cantidad input:", cantidadInput);
+            console.log("Unidad input:", unidadInput);
+            
+            if (!productoSelect || !cantidadInput || !unidadInput) {
+                alert("ERROR: No se encontraron todos los campos del modal");
+                return;
+            }
+            
+            // Obtener valores
+            const productoValue = productoSelect.value;
+            const cantidadValue = cantidadInput.value;
+            const unidadValue = unidadInput.value;
+            
+            console.log("Valores:", {
+                producto: productoValue,
+                cantidad: cantidadValue,
+                unidad: unidadValue
+            });
+            
+            // Validar que se hayan ingresado datos
+            if (!productoValue || !cantidadValue || !unidadValue) {
+                alert("Por favor complete todos los campos");
+                return;
+            }
+            
+            // CREAR NUEVO FORMULARIO
+            const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
+            const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
+            
+            const newDiv = document.createElement("div");
+            newDiv.classList.add("formset-form");
+            newDiv.innerHTML = newFormHtml;
+            
+            // ASIGNAR VALORES AL NUEVO FORMULARIO
+            const newProductoSelect = newDiv.querySelector("select[name*='-producto']");
+            const newCantidadInput = newDiv.querySelector("input[name*='-cantidad']");
+            const newUnidadInput = newDiv.querySelector("input[name*='-unidad']");
+            
+            if (newProductoSelect) newProductoSelect.value = productoValue;
+            if (newCantidadInput) newCantidadInput.value = cantidadValue;
+            if (newUnidadInput) newUnidadInput.value = unidadValue;
+            
+            // AGREGAR AL FORMSET
+            container.appendChild(newDiv);
+            
+            // ACTUALIZAR CONTADOR
+            totalForms.value = parseInt(formIndex) + 1;
+            
+            console.log("Nuevo total:", totalForms.value);
+            
+            // LIMPIAR MODAL
+            productoSelect.value = "";
+            cantidadInput.value = "";
+            unidadInput.value = "";
+            
+            // CERRAR MODAL
+            const modalElement = document.getElementById("productoModal");
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+        });
+    }
+    
+    setupGuardarButton();
+});
+</script>
+
+{% endblock %}
