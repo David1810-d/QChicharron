@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include,path
 from aplicacion.views import *
+from login.views import Login_view
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,5 +26,8 @@ urlpatterns = [
     path("apps/", include ("aplicacion.urls", namespace="apl")),
     
     path("select2/", include("django_select2.urls")),
+
+    path("login/", Login_view.as_view())
+
 ]
 
