@@ -61,7 +61,7 @@ class PlatoCreateView(CreateView):
 class PlatoUpdateView(UpdateView):
     model = Plato
     form_class = PlatoForm
-    template_name = 'forms/formulario_actualizacion.html'
+    template_name = 'forms/formulario_actualizar_plato.html'
     success_url = reverse_lazy('apl:listar_plato')
 
     def get(self, request, *args, **kwargs):
