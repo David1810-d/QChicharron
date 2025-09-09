@@ -238,11 +238,20 @@ class PlatoProducto(models.Model):
 # ---------------------------- Venta -----------------------------
 
 class Venta(models.Model):
+    METODOS_PAGO = [
+        ("efectivo", "Efectivo"),
+        ("tarjeta", "Tarjeta"),
+        ("online", "Online"),
+    ]
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-    fecha = models.DateField(default=datetime.date.today)
+    fecha = models.DateField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
-    metodo_pago = models.CharField(max_length=20)
-    estado = models.CharField(max_length=20)
+    metodo_pago = models.CharField(max_length=50, choices=METODOS_PAGO, default="efectivo")
+    estado = models.CharField(max_length=20, choices=[
+        ("pendiente", "Pendiente"),
+        ("pagado", "Pagado"),
+        ("cancelado", "Cancelado"),
+    ], default="pendiente")
     admin = models.ForeignKey(Administrador, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):

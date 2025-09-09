@@ -26,8 +26,8 @@
                     {% for v in ventas %}
                     <tr>
                         <td>{{ v.id }}</td>
-                        <td>{{ v.pedido.id }}</td>
-                        <td>{{ v.fecha }}</td>
+                        <td>{{ v.pedido }}</td>
+                        <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
                         <td>{{ v.total }}</td>
                         <td>{{ v.metodo_pago }}</td>
                         <td>{{ v.estado }}</td>

@@ -25,7 +25,7 @@ class VentaListView(ListView):
 class VentaCreateView(CreateView):
     model = Venta
     template_name = 'forms/formulario_crear.html'
-    fields = ['pedido', 'fecha', 'total', 'metodo_pago', 'estado', 'admin']
+    fields = ['pedido', 'total', 'metodo_pago', 'estado', 'admin']
     success_url = '/apps/ventas/listar/'
 
     def form_valid(self, form):
@@ -41,7 +41,7 @@ class VentaCreateView(CreateView):
 class VentaUpdateView(UpdateView):
     model = Venta
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['pedido', 'fecha', 'total', 'metodo_pago', 'estado', 'admin']
+    fields = ['pedido','total', 'metodo_pago', 'estado', 'admin']
     success_url = '/apps/ventas/listar/'
 
     def form_valid(self, form):
