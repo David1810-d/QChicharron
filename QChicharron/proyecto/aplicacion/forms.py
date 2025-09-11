@@ -32,3 +32,86 @@ PlatoProductoFormSet = inlineformset_factory(
     can_delete=True
 )
 #sdfgdfhfg
+
+# Formularios para crear nuevas foreign keys
+class CrearMarcaForm(forms.ModelForm):
+    class Meta:
+        model = Marca
+        fields = ['nombre', 'descripcion', 'pais_origen']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'pais_origen': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+class CrearCategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre', 'descripcion']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
+        }
+
+class CrearProveedorForm(forms.ModelForm):
+    class Meta:
+        model = Proveedor
+        fields = ['nombre', 'nit']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'nit': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+class CrearUnidadForm(forms.ModelForm):
+    class Meta:
+        model = Unidad
+        fields = ['nombre', 'descripcion']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.TextInput(attrs={'class': 'form-control'})
+        }
+
+# Widget personalizado para Select2 con opción de crear nuevo
+class Select2WithCreateWidget(ModelSelect2Widget):
+    def __init__(self, *args, **kwargs):
+        self.create_url = kwargs.pop('create_url', None)
+        self.create_text = kwargs.pop('create_text', 'Crear nuevo')
+        super().__init__(*args, **kwargs)
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        attrs = super().build_attrs(base_attrs, extra_attrs)
+        if self.create_url:
+            attrs['data-create-url'] = self.create_url
+            attrs['data-create-text'] = self.create_text
+        return attrs
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = '__all__'
+        widgets = {
+            'marca': Select2WithCreateWidget(
+                model=Marca,
+                search_fields=['nombre__icontains'],
+                create_url='crear_marca_ajax',
+                create_text='+ Crear nueva marca'
+            ),
+            'categoria': Select2WithCreateWidget(
+                model=Categoria,
+                search_fields=['nombre__icontains'],
+                create_url='crear_categoria_ajax',
+                create_text='+ Crear nueva categoría'
+            ),
+            'proveedor': Select2WithCreateWidget(
+                model=Proveedor,
+                search_fields=['nombre__icontains'],
+                create_url='crear_proveedor_ajax',
+                create_text='+ Crear nuevo proveedor'
+            ),
+            'unidad': Select2WithCreateWidget(
+                model=Unidad,
+                search_fields=['nombre__icontains'],
+                create_url='crear_unidad_ajax',
+                create_text='+ Crear nueva unidad'
+            ),
+        }
