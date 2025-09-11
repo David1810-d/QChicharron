@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
 
 <div class="form-container">
-    {{ titulo }}
+   <h1 class="form-title">{{ titulo }}</h1>
     
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
