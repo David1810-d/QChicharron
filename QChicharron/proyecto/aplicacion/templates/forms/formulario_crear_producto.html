@@ -1,0 +1,336 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'lib/css/forms.css' %}">
+<link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
+<!-- Select2 CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+
+<style>
+    .create-button {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 10px;
+    }
+    .create-button:hover {
+        background-color: #218838;
+    }
+    .field-with-button {
+        display: flex;
+        align-items-center;
+        gap: 10px;
+    }
+    .field-with-button > div:first-child {
+        flex: 1;
+    }
+    /* Modal simple */
+    .simple-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    .modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        width: 400px;
+        max-width: 90%;
+    }
+    .modal-buttons {
+        text-align: right;
+        margin-top: 15px;
+    }
+    .modal-buttons button {
+        margin-left: 10px;
+        padding: 8px 15px;
+    }
+</style>
+
+<div class="form-container">
+    {{ titulo }}
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Campo Nombre -->
+        <p>
+            <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}:</label>
+            {{ form.nombre }}
+        </p>
+        
+        <!-- Campo Marca con botón -->
+        <p>
+            <label for="{{ form.marca.id_for_label }}">{{ form.marca.label }}:</label>
+            <div class="field-with-button">
+                <div>{{ form.marca }}</div>
+                <button type="button" class="create-button" onclick="abrirModal('modalMarca')">+ Nueva</button>
+            </div>
+        </p>
+        
+        <!-- Campo Categoría con botón -->
+        <p>
+            <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}:</label>
+            <div class="field-with-button">
+                <div>{{ form.categoria }}</div>
+                <button type="button" class="create-button" onclick="abrirModal('modalCategoria')">+ Nueva</button>
+            </div>
+        </p>
+        
+        <!-- Campo Proveedor con botón -->
+        <p>
+            <label for="{{ form.proveedor.id_for_label }}">{{ form.proveedor.label }}:</label>
+            <div class="field-with-button">
+                <div>{{ form.proveedor }}</div>
+                <button type="button" class="create-button" onclick="abrirModal('modalProveedor')">+ Nuevo</button>
+            </div>
+        </p>
+        
+        <!-- Campo Tipo de Uso -->
+        <p>
+            <label for="{{ form.tipo_uso.id_for_label }}">{{ form.tipo_uso.label }}:</label>
+            {{ form.tipo_uso }}
+        </p>
+        
+        <!-- Campo Unidad con botón -->
+        <p>
+            <label for="{{ form.unidad.id_for_label }}">{{ form.unidad.label }}:</label>
+            <div class="field-with-button">
+                <div>{{ form.unidad }}</div>
+                <button type="button" class="create-button" onclick="abrirModal('modalUnidad')">+ Nueva</button>
+            </div>
+        </p>
+        
+        <!-- Campo Stock -->
+        <p>
+            <label for="{{ form.stock.id_for_label }}">{{ form.stock.label }}:</label>
+            {{ form.stock }}
+        </p>
+
+        {% if formset %}
+        {{ formset.management_form }}
+        {% endif %}
+
+        <div class="formset-container">
+            {% for form in formset %}
+                <div class="formset-form">
+                    {{ form.as_p }}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <button type="submit">Enviar</button>
+
+        {% block extra %}{% endblock %}
+    </form>
+    
+    <div class="back-link">
+        <button type="button" onclick="window.history.back();">Volver</button>
+    </div>
+</div>
+
+<!-- Modales Simples -->
+<div id="modalMarca" class="simple-modal">
+    <div class="modal-content">
+        <h3>Crear Nueva Marca</h3>
+        <p><label>Nombre: *</label><input type="text" id="nombreMarca" style="width:100%;"></p>
+        <p><label>País de Origen: *</label><input type="text" id="paisOrigenMarca" style="width:100%;"></p>
+        <p><label>Descripción:</label><textarea id="descripcionMarca" style="width:100%;" rows="2"></textarea></p>
+        <div class="modal-buttons">
+            <button onclick="cerrarModal('modalMarca')">Cancelar</button>
+            <button onclick="guardarMarca()" style="background:#007bff;color:white;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalCategoria" class="simple-modal">
+    <div class="modal-content">
+        <h3>Crear Nueva Categoría</h3>
+        <p><label>Nombre: *</label><input type="text" id="nombreCategoria" style="width:100%;"></p>
+        <p><label>Descripción:</label><textarea id="descripcionCategoria" style="width:100%;" rows="2"></textarea></p>
+        <div class="modal-buttons">
+            <button onclick="cerrarModal('modalCategoria')">Cancelar</button>
+            <button onclick="guardarCategoria()" style="background:#007bff;color:white;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalProveedor" class="simple-modal">
+    <div class="modal-content">
+        <h3>Crear Nuevo Proveedor</h3>
+        <p><label>Nombre: *</label><input type="text" id="nombreProveedor" style="width:100%;"></p>
+        <p><label>NIT: *</label><input type="text" id="nitProveedor" style="width:100%;"></p>
+        <div class="modal-buttons">
+            <button onclick="cerrarModal('modalProveedor')">Cancelar</button>
+            <button onclick="guardarProveedor()" style="background:#007bff;color:white;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalUnidad" class="simple-modal">
+    <div class="modal-content">
+        <h3>Crear Nueva Unidad</h3>
+        <p><label>Nombre: *</label><input type="text" id="nombreUnidad" style="width:100%;"></p>
+        <p><label>Descripción:</label><input type="text" id="descripcionUnidad" style="width:100%;"></p>
+        <div class="modal-buttons">
+            <button onclick="cerrarModal('modalUnidad')">Cancelar</button>
+            <button onclick="guardarUnidad()" style="background:#007bff;color:white;">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#id_marca, #id_categoria, #id_proveedor, #id_unidad').select2({width: '100%'});
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+function abrirModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function cerrarModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    const inputs = document.getElementById(modalId).querySelectorAll('input, textarea');
+    inputs.forEach(input => input.value = '');
+}
+
+function guardarMarca() {
+    const nombre = document.getElementById('nombreMarca').value.trim();
+    const paisOrigen = document.getElementById('paisOrigenMarca').value.trim();
+    const descripcion = document.getElementById('descripcionMarca').value.trim();
+    
+    if (!nombre || !paisOrigen) {
+        alert('Complete los campos requeridos');
+        return;
+    }
+
+    fetch('{% url "apl:crear_marca_ajax" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+        body: JSON.stringify({nombre, pais_origen: paisOrigen, descripcion})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#id_marca').append(new Option(data.text, data.id, true, true)).trigger('change');
+            cerrarModal('modalMarca');
+            alert('Marca creada exitosamente');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
+}
+
+function guardarCategoria() {
+    const nombre = document.getElementById('nombreCategoria').value.trim();
+    const descripcion = document.getElementById('descripcionCategoria').value.trim();
+    
+    if (!nombre) {
+        alert('Ingrese el nombre de la categoría');
+        return;
+    }
+
+    fetch('{% url "apl:crear_categoria_ajax" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+        body: JSON.stringify({nombre, descripcion})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#id_categoria').append(new Option(data.text, data.id, true, true)).trigger('change');
+            cerrarModal('modalCategoria');
+            alert('Categoría creada exitosamente');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
+}
+
+function guardarProveedor() {
+    const nombre = document.getElementById('nombreProveedor').value.trim();
+    const nit = document.getElementById('nitProveedor').value.trim();
+    
+    if (!nombre || !nit) {
+        alert('Complete los campos requeridos');
+        return;
+    }
+
+    fetch('{% url "apl:crear_proveedor_ajax" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+        body: JSON.stringify({nombre, nit})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#id_proveedor').append(new Option(data.text, data.id, true, true)).trigger('change');
+            cerrarModal('modalProveedor');
+            alert('Proveedor creado exitosamente');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
+}
+
+function guardarUnidad() {
+    const nombre = document.getElementById('nombreUnidad').value.trim();
+    const descripcion = document.getElementById('descripcionUnidad').value.trim();
+    
+    if (!nombre) {
+        alert('Ingrese el nombre de la unidad');
+        return;
+    }
+
+    fetch('{% url "apl:crear_unidad_ajax" %}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
+        body: JSON.stringify({nombre, descripcion})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#id_unidad').append(new Option(data.text, data.id, true, true)).trigger('change');
+            cerrarModal('modalUnidad');
+            alert('Unidad creada exitosamente');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    });
+}
+</script>
+
+{% endblock %}
