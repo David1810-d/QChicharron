@@ -254,6 +254,25 @@ class Venta(models.Model):
     ], default="pendiente")
     admin = models.ForeignKey(Administrador, on_delete=models.SET_NULL, null=True)
 
+    def save(self, *args, **kwargs):
+        
+        if not self.pk:  # Solo la primera vez que se crea la venta
+            for detalle in self.pedido.detallepedido_set.all():
+                producto = detalle.producto
+                cantidad = detalle.cantidad
+                producto.stock = (producto.stock or 0) - cantidad
+                producto.save()
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        
+        for detalle in self.pedido.detallepedido_set.all():
+            producto = detalle.producto
+            cantidad = detalle.cantidad
+            producto.stock = (producto.stock or 0) + cantidad
+            producto.save()
+        super().delete(*args, **kwargs)
+
     def __str__(self):
         return f"Venta #{self.id} - Pedido {self.pedido.id}"
 
