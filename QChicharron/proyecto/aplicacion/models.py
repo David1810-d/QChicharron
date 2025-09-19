@@ -2,6 +2,9 @@ from django.db import models
 from django.utils import timezone
 import datetime
 import uuid
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+
 
 # ------------------ Modelos: Administrador, Usuario, Empleado -----------------------------
 
@@ -169,16 +172,113 @@ class Pedido(models.Model):
     def __str__(self):
         return f"Pedido {self.id} - Mesa {self.mesa.id}"
 
-# ---------------------------- Menú y Plato -----------------------------
-
+# ---------------------------- Menú  -----------------------------
+# REEMPLAZAR tu modelo Menu actual con este:
 class Menu(models.Model):
+    """
+    Modelo que puede referenciar tanto Productos como Platos
+    usando una relación polimórfica
+    """
     nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-
+    descripcion = models.TextField(blank=True, null=True)
+    precio_menu = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    disponible = models.BooleanField(default=True)
+    fecha_creacion = models.DateTimeField(default=timezone.now)  # ← CAMBIADO: usar default en lugar de auto_now_add
+    
+    # Campos para la relación polimórfica - TEMPORALMENTE con null=True
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    item = GenericForeignKey('content_type', 'object_id')
+    
+    # Campos adicionales específicos del menú
+    categoria_menu = models.CharField(
+        max_length=50,
+        choices=[
+            ('entrada', 'Entrada'),
+            ('plato_principal', 'Plato Principal'),
+            ('postre', 'Postre'),
+            ('bebida', 'Bebida'),
+            ('combo', 'Combo')
+        ],
+        default='plato_principal'
+    )
+    
+    descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    
+    # Mantener campo precio original para compatibilidad temporal
+    precio = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    class Meta:
+        verbose_name = "Ítem del Menú"
+        verbose_name_plural = "Ítems del Menú"
+        ordering = ['categoria_menu', 'nombre']
+    
+    def get_precio_final(self):
+        """
+        Obtiene el precio final considerando descuentos
+        """
+        if self.precio_menu:
+            precio_base = self.precio_menu
+        elif self.precio:
+            precio_base = self.precio
+        elif hasattr(self.item, 'precio'):
+            precio_base = self.item.precio
+        else:
+            precio_base = 0
+        
+        descuento_aplicado = precio_base * (self.descuento / 100)
+        return precio_base - descuento_aplicado
+    
+    def get_tipo_item(self):
+        """
+        Retorna el tipo de ítem (producto o plato)
+        """
+        if self.content_type:
+            return self.content_type.model
+        return "menu_simple"
+    
+    def get_stock_disponible(self):
+        """
+        Si el ítem es un producto, retorna el stock disponible
+        """
+        if self.get_tipo_item() == 'producto' and self.item:
+            return self.item.stock
+        return None
+    
+    def puede_servirse(self):
+        """
+        Verifica si el ítem del menú puede servirse
+        """
+        if not self.disponible:
+            return False
+        
+        if not self.item:  # Menu simple sin item asociado
+            return True
+        
+        if self.get_tipo_item() == 'producto':
+            return self.item.stock > 0
+        
+        # Para platos, verificar si tiene productos suficientes
+        if self.get_tipo_item() == 'plato':
+            for plato_producto in self.item.platoproducto_set.all():
+                if plato_producto.producto.stock < plato_producto.cantidad:
+                    return False
+        
+        return True
+    
     def __str__(self):
-        return self.nombre
+        precio = self.get_precio_final()
+        if self.item:
+            tipo = self.get_tipo_item().title()
+            return f"{self.nombre} ({tipo}) - ${precio}"
+        else:
+            return f"{self.nombre} - ${precio}"
 
+
+
+
+
+# ---------------------------- Menú y Plato -----------------------------
 class Plato(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()

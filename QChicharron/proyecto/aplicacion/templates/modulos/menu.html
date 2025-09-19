@@ -13,7 +13,12 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Descripción</th>
-                            <th>Precio</th>
+                            <th>Categoría</th>
+                            <th>Precio Base</th>
+                            <th>Descuento</th>
+                            <th>Precio Final</th>
+                            <th>Disponible</th>
+                            <th>Stock</th>
                             <th>
                                 <a href="{% url 'apl:menu_create' %}" class="btn btn-success btn-sm">
                                     <i class="bi bi-plus-circle"></i> Agregar Menú
@@ -27,6 +32,35 @@
                             <td>{{ menu.nombre }}</td>
                             <td>{{ menu.descripcion }}</td>
                             <td>${{ menu.precio|floatformat:2 }}</td>
+                            <td>{{ menu.get_categoria_menu_display }}</td>
+                            <td>
+                                {% if menu.precio_menu %}
+                                    ${{ menu.precio_menu|floatformat:2 }}
+                                {% elif menu.precio %}
+                                    ${{ menu.precio|floatformat:2 }}
+                                {% elif menu.item and menu.item.precio %}
+                                    ${{ menu.item.precio|floatformat:2 }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>{{ menu.descuento|floatformat:2 }}%</td>
+                            <td>${{ menu.get_precio_final|floatformat:2 }}</td>
+                            <td>
+                                 {% if menu.puede_servirse %}
+                                     ✅ Sí
+                                 {% else %}
+                                    ❌ No
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if menu.get_stock_disponible %}
+                                    {{ menu.get_stock_disponible }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
                             <td class="text-end">
                                 <a href="{% url 'apl:menu_update' menu.id %}" class="btn btn-warning btn-sm d-inline">
                                     <i class="bi bi-pen-fill"></i>
@@ -39,6 +73,21 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+                    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+                <script>
+                    $(document).ready(function () {
+                    $('#menuTable').DataTable({
+                            "pageLength": 5,
+                            "language": {
+                                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                            }
+                        });
+                    });
+                 </script>
+
             </div>
         </div>
     </div>
