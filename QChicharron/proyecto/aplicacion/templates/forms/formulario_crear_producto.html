@@ -7,62 +7,11 @@
 <!-- Select2 CSS -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
 
-<style>
-    .create-button {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 12px;
-        margin-left: 10px;
-    }
-    .create-button:hover {
-        background-color: #218838;
-    }
-    .field-with-button {
-        display: flex;
-        align-items-center;
-        gap: 10px;
-    }
-    .field-with-button > div:first-child {
-        flex: 1;
-    }
-    /* Modal simple */
-    .simple-modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1000;
-    }
-    .modal-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 5px;
-        width: 400px;
-        max-width: 90%;
-    }
-    .modal-buttons {
-        text-align: right;
-        margin-top: 15px;
-    }
-    .modal-buttons button {
-        margin-left: 10px;
-        padding: 8px 15px;
-    }
-</style>
-
 <div class="form-container">
     {{ titulo }}
+    
+    <!-- Contenedor para mensajes -->
+    <div id="messages-container"></div>
     
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -74,31 +23,31 @@
         </p>
         
         <!-- Campo Marca con botón -->
-        <p>
-            <label for="{{ form.marca.id_for_label }}">{{ form.marca.label }}:</label>
-            <div class="field-with-button">
-                <div>{{ form.marca }}</div>
-                <button type="button" class="create-button" onclick="abrirModal('modalMarca')">+ Nueva</button>
+        <div class="field-with-button">
+            <div>
+                <label for="{{ form.marca.id_for_label }}">{{ form.marca.label }}:</label>
+                {{ form.marca }}
             </div>
-        </p>
+            <button type="button" class="create-button" onclick="abrirModal('modalMarca')">+ Nueva</button>
+        </div>
         
         <!-- Campo Categoría con botón -->
-        <p>
-            <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}:</label>
-            <div class="field-with-button">
-                <div>{{ form.categoria }}</div>
-                <button type="button" class="create-button" onclick="abrirModal('modalCategoria')">+ Nueva</button>
+        <div class="field-with-button">
+            <div>
+                <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}:</label>
+                {{ form.categoria }}
             </div>
-        </p>
+            <button type="button" class="create-button" onclick="abrirModal('modalCategoria')">+ Nueva</button>
+        </div>
         
         <!-- Campo Proveedor con botón -->
-        <p>
-            <label for="{{ form.proveedor.id_for_label }}">{{ form.proveedor.label }}:</label>
-            <div class="field-with-button">
-                <div>{{ form.proveedor }}</div>
-                <button type="button" class="create-button" onclick="abrirModal('modalProveedor')">+ Nuevo</button>
+        <div class="field-with-button">
+            <div>
+                <label for="{{ form.proveedor.id_for_label }}">{{ form.proveedor.label }}:</label>
+                {{ form.proveedor }}
             </div>
-        </p>
+            <button type="button" class="create-button" onclick="abrirModal('modalProveedor')">+ Nuevo</button>
+        </div>
         
         <!-- Campo Tipo de Uso -->
         <p>
@@ -107,13 +56,13 @@
         </p>
         
         <!-- Campo Unidad con botón -->
-        <p>
-            <label for="{{ form.unidad.id_for_label }}">{{ form.unidad.label }}:</label>
-            <div class="field-with-button">
-                <div>{{ form.unidad }}</div>
-                <button type="button" class="create-button" onclick="abrirModal('modalUnidad')">+ Nueva</button>
+        <div class="field-with-button">
+            <div>
+                <label for="{{ form.unidad.id_for_label }}">{{ form.unidad.label }}:</label>
+                {{ form.unidad }}
             </div>
-        </p>
+            <button type="button" class="create-button" onclick="abrirModal('modalUnidad')">+ Nueva</button>
+        </div>
         
         <!-- Campo Stock -->
         <p>
@@ -133,7 +82,7 @@
             {% endfor %}
         </div>
         
-        <button type="submit">Enviar</button>
+        <button type="submit">Crear Producto</button>
 
         {% block extra %}{% endblock %}
     </form>
@@ -143,16 +92,22 @@
     </div>
 </div>
 
-<!-- Modales Simples -->
+<!-- ===== MODALES ELEGANTES ===== -->
 <div id="modalMarca" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nueva Marca</h3>
-        <p><label>Nombre: *</label><input type="text" id="nombreMarca" style="width:100%;"></p>
-        <p><label>País de Origen: *</label><input type="text" id="paisOrigenMarca" style="width:100%;"></p>
-        <p><label>Descripción:</label><textarea id="descripcionMarca" style="width:100%;" rows="2"></textarea></p>
+        <label for="nombreMarca">Nombre: *</label>
+        <input type="text" id="nombreMarca" placeholder="Ej: Nike, Adidas">
+        
+        <label for="paisOrigenMarca">País de Origen: *</label>
+        <input type="text" id="paisOrigenMarca" placeholder="Ej: Estados Unidos, Colombia">
+        
+        <label for="descripcionMarca">Descripción:</label>
+        <textarea id="descripcionMarca" rows="3" placeholder="Descripción opcional de la marca"></textarea>
+        
         <div class="modal-buttons">
-            <button onclick="cerrarModal('modalMarca')">Cancelar</button>
-            <button onclick="guardarMarca()" style="background:#007bff;color:white;">Guardar</button>
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalMarca')">Cancelar</button>
+            <button type="button" class="btn-save" onclick="guardarMarca()">Guardar</button>
         </div>
     </div>
 </div>
@@ -160,11 +115,15 @@
 <div id="modalCategoria" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nueva Categoría</h3>
-        <p><label>Nombre: *</label><input type="text" id="nombreCategoria" style="width:100%;"></p>
-        <p><label>Descripción:</label><textarea id="descripcionCategoria" style="width:100%;" rows="2"></textarea></p>
+        <label for="nombreCategoria">Nombre: *</label>
+        <input type="text" id="nombreCategoria" placeholder="Ej: Bebidas, Carnes, Condimentos">
+        
+        <label for="descripcionCategoria">Descripción:</label>
+        <textarea id="descripcionCategoria" rows="3" placeholder="Descripción opcional de la categoría"></textarea>
+        
         <div class="modal-buttons">
-            <button onclick="cerrarModal('modalCategoria')">Cancelar</button>
-            <button onclick="guardarCategoria()" style="background:#007bff;color:white;">Guardar</button>
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalCategoria')">Cancelar</button>
+            <button type="button" class="btn-save" onclick="guardarCategoria()">Guardar</button>
         </div>
     </div>
 </div>
@@ -172,11 +131,15 @@
 <div id="modalProveedor" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nuevo Proveedor</h3>
-        <p><label>Nombre: *</label><input type="text" id="nombreProveedor" style="width:100%;"></p>
-        <p><label>NIT: *</label><input type="text" id="nitProveedor" style="width:100%;"></p>
+        <label for="nombreProveedor">Nombre: *</label>
+        <input type="text" id="nombreProveedor" placeholder="Nombre del proveedor">
+        
+        <label for="nitProveedor">NIT: *</label>
+        <input type="text" id="nitProveedor" placeholder="123456789-0">
+        
         <div class="modal-buttons">
-            <button onclick="cerrarModal('modalProveedor')">Cancelar</button>
-            <button onclick="guardarProveedor()" style="background:#007bff;color:white;">Guardar</button>
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalProveedor')">Cancelar</button>
+            <button type="button" class="btn-save" onclick="guardarProveedor()">Guardar</button>
         </div>
     </div>
 </div>
@@ -184,22 +147,58 @@
 <div id="modalUnidad" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nueva Unidad</h3>
-        <p><label>Nombre: *</label><input type="text" id="nombreUnidad" style="width:100%;"></p>
-        <p><label>Descripción:</label><input type="text" id="descripcionUnidad" style="width:100%;"></p>
+        <label for="nombreUnidad">Nombre: *</label>
+        <input type="text" id="nombreUnidad" placeholder="Ej: Kilogramos, Litros, Unidades">
+        
+        <label for="descripcionUnidad">Descripción:</label>
+        <input type="text" id="descripcionUnidad" placeholder="Descripción opcional">
+        
         <div class="modal-buttons">
-            <button onclick="cerrarModal('modalUnidad')">Cancelar</button>
-            <button onclick="guardarUnidad()" style="background:#007bff;color:white;">Guardar</button>
+            <button type="button" class="btn-cancel" onclick="cerrarModal('modalUnidad')">Cancelar</button>
+            <button type="button" class="btn-save" onclick="guardarUnidad()">Guardar</button>
         </div>
     </div>
 </div>
 
+<!-- ===== JAVASCRIPT ===== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
 <script>
 $(document).ready(function() {
-    $('#id_marca, #id_categoria, #id_proveedor, #id_unidad').select2({width: '100%'});
+    // Inicializar Select2 con configuración personalizada
+    $('#id_marca, #id_categoria, #id_proveedor, #id_unidad').select2({
+        width: '100%',
+        placeholder: 'Seleccionar...',
+        allowClear: false,
+        language: {
+            noResults: function() {
+                return "No se encontraron resultados";
+            },
+            searching: function() {
+                return "Buscando...";
+            }
+        }
+    });
+    
+    // Cerrar modal al hacer clic fuera
+    $('.simple-modal').on('click', function(e) {
+        if (e.target === this) {
+            cerrarModalConAnimacion(this.id);
+        }
+    });
+    
+    // Cerrar modal con ESC
+    $(document).keydown(function(e) {
+        if (e.keyCode === 27) { // ESC key
+            $('.simple-modal:visible').each(function() {
+                cerrarModalConAnimacion(this.id);
+            });
+        }
+    });
 });
 
+// Obtener CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -217,120 +216,225 @@ function getCookie(name) {
 
 const csrftoken = getCookie('csrftoken');
 
+// Funciones de modal con animaciones
 function abrirModal(modalId) {
-    document.getElementById(modalId).style.display = 'block';
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'block';
+    // Forzar reflow para que la animación funcione
+    modal.offsetHeight;
+    modal.style.opacity = '1';
 }
 
 function cerrarModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-    const inputs = document.getElementById(modalId).querySelectorAll('input, textarea');
-    inputs.forEach(input => input.value = '');
+    cerrarModalConAnimacion(modalId);
 }
 
+function cerrarModalConAnimacion(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.opacity = '0';
+    setTimeout(() => {
+        modal.style.display = 'none';
+        // Limpiar campos
+        const inputs = modal.querySelectorAll('input, textarea');
+        inputs.forEach(input => input.value = '');
+    }, 300);
+}
+
+// Función para mostrar mensajes
+function mostrarMensaje(tipo, mensaje) {
+    const messageHtml = `<div class="message ${tipo}">${mensaje}</div>`;
+    $('#messages-container').html(messageHtml);
+    
+    // Auto-ocultar después de 5 segundos
+    setTimeout(function() {
+        $('#messages-container .message').fadeOut(500, function() {
+            $(this).remove();
+        });
+    }, 5000);
+}
+
+// Función para actualizar select con Select2
+function actualizarSelect(selectId, nuevoId, nuevoTexto) {
+    const $select = $('#' + selectId);
+    // Crear nueva opción
+    const newOption = new Option(nuevoTexto, nuevoId, true, true);
+    $select.append(newOption).trigger('change');
+}
+
+// Función para deshabilitar botón durante la carga
+function toggleBoton(selector, estado, textoLoading = 'Guardando...') {
+    const $btn = $(selector);
+    if (estado === 'loading') {
+        $btn.prop('disabled', true).data('original-text', $btn.text()).text(textoLoading);
+    } else {
+        $btn.prop('disabled', false).text($btn.data('original-text') || 'Guardar');
+    }
+}
+
+// ===== FUNCIONES AJAX =====
 function guardarMarca() {
-    const nombre = document.getElementById('nombreMarca').value.trim();
-    const paisOrigen = document.getElementById('paisOrigenMarca').value.trim();
-    const descripcion = document.getElementById('descripcionMarca').value.trim();
+    const nombre = $('#nombreMarca').val().trim();
+    const paisOrigen = $('#paisOrigenMarca').val().trim();
+    const descripcion = $('#descripcionMarca').val().trim();
     
     if (!nombre || !paisOrigen) {
-        alert('Complete los campos requeridos');
+        mostrarMensaje('error', 'Complete los campos requeridos (Nombre y País de Origen)');
         return;
     }
 
-    fetch('{% url "apl:crear_marca_ajax" %}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({nombre, pais_origen: paisOrigen, descripcion})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            $('#id_marca').append(new Option(data.text, data.id, true, true)).trigger('change');
-            cerrarModal('modalMarca');
-            alert('Marca creada exitosamente');
-        } else {
-            alert('Error: ' + data.error);
+    toggleBoton('.btn-save', 'loading');
+
+    $.ajax({
+        url: '{% url "apl:crear_marca_ajax" %}',
+        type: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        data: JSON.stringify({
+            nombre: nombre,
+            pais_origen: paisOrigen,
+            descripcion: descripcion
+        }),
+        success: function(data) {
+            if (data.success) {
+                actualizarSelect('id_marca', data.id, data.text);
+                cerrarModal('modalMarca');
+                mostrarMensaje('success', `Marca "${data.text}" creada exitosamente`);
+            } else {
+                mostrarMensaje('error', data.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error AJAX:', error);
+            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
+        },
+        complete: function() {
+            toggleBoton('.btn-save', 'normal');
         }
     });
 }
 
 function guardarCategoria() {
-    const nombre = document.getElementById('nombreCategoria').value.trim();
-    const descripcion = document.getElementById('descripcionCategoria').value.trim();
+    const nombre = $('#nombreCategoria').val().trim();
+    const descripcion = $('#descripcionCategoria').val().trim();
     
     if (!nombre) {
-        alert('Ingrese el nombre de la categoría');
+        mostrarMensaje('error', 'El nombre de la categoría es requerido');
         return;
     }
 
-    fetch('{% url "apl:crear_categoria_ajax" %}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({nombre, descripcion})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            $('#id_categoria').append(new Option(data.text, data.id, true, true)).trigger('change');
-            cerrarModal('modalCategoria');
-            alert('Categoría creada exitosamente');
-        } else {
-            alert('Error: ' + data.error);
+    toggleBoton('.btn-save', 'loading');
+
+    $.ajax({
+        url: '{% url "apl:crear_categoria_ajax" %}',
+        type: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        data: JSON.stringify({
+            nombre: nombre,
+            descripcion: descripcion
+        }),
+        success: function(data) {
+            if (data.success) {
+                actualizarSelect('id_categoria', data.id, data.text);
+                cerrarModal('modalCategoria');
+                mostrarMensaje('success', `Categoría "${data.text}" creada exitosamente`);
+            } else {
+                mostrarMensaje('error', data.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
+        },
+        complete: function() {
+            toggleBoton('.btn-save', 'normal');
         }
     });
 }
 
 function guardarProveedor() {
-    const nombre = document.getElementById('nombreProveedor').value.trim();
-    const nit = document.getElementById('nitProveedor').value.trim();
+    const nombre = $('#nombreProveedor').val().trim();
+    const nit = $('#nitProveedor').val().trim();
     
     if (!nombre || !nit) {
-        alert('Complete los campos requeridos');
+        mostrarMensaje('error', 'Complete todos los campos requeridos (Nombre y NIT)');
         return;
     }
 
-    fetch('{% url "apl:crear_proveedor_ajax" %}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({nombre, nit})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            $('#id_proveedor').append(new Option(data.text, data.id, true, true)).trigger('change');
-            cerrarModal('modalProveedor');
-            alert('Proveedor creado exitosamente');
-        } else {
-            alert('Error: ' + data.error);
+    toggleBoton('.btn-save', 'loading');
+
+    $.ajax({
+        url: '{% url "apl:crear_proveedor_ajax" %}',
+        type: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        data: JSON.stringify({
+            nombre: nombre,
+            nit: nit
+        }),
+        success: function(data) {
+            if (data.success) {
+                actualizarSelect('id_proveedor', data.id, data.text);
+                cerrarModal('modalProveedor');
+                mostrarMensaje('success', `Proveedor "${data.text}" creado exitosamente`);
+            } else {
+                mostrarMensaje('error', data.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
+        },
+        complete: function() {
+            toggleBoton('.btn-save', 'normal');
         }
     });
 }
 
 function guardarUnidad() {
-    const nombre = document.getElementById('nombreUnidad').value.trim();
-    const descripcion = document.getElementById('descripcionUnidad').value.trim();
+    const nombre = $('#nombreUnidad').val().trim();
+    const descripcion = $('#descripcionUnidad').val().trim();
     
     if (!nombre) {
-        alert('Ingrese el nombre de la unidad');
+        mostrarMensaje('error', 'El nombre de la unidad es requerido');
         return;
     }
 
-    fetch('{% url "apl:crear_unidad_ajax" %}', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrftoken},
-        body: JSON.stringify({nombre, descripcion})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            $('#id_unidad').append(new Option(data.text, data.id, true, true)).trigger('change');
-            cerrarModal('modalUnidad');
-            alert('Unidad creada exitosamente');
-        } else {
-            alert('Error: ' + data.error);
+    toggleBoton('.btn-save', 'loading');
+
+    $.ajax({
+        url: '{% url "apl:crear_unidad_ajax" %}',
+        type: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+        },
+        data: JSON.stringify({
+            nombre: nombre,
+            descripcion: descripcion
+        }),
+        success: function(data) {
+            if (data.success) {
+                actualizarSelect('id_unidad', data.id, data.text);
+                cerrarModal('modalUnidad');
+                mostrarMensaje('success', `Unidad "${data.text}" creada exitosamente`);
+            } else {
+                mostrarMensaje('error', data.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
+        },
+        complete: function() {
+            toggleBoton('.btn-save', 'normal');
         }
     });
 }
 </script>
+
 
 {% endblock %}

@@ -1,6 +1,8 @@
 from django import forms
 from aplicacion.models import *
 from django.forms import inlineformset_factory
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
 from django_select2.forms import *
 
 #class MensajeForm(forms.ModelForm):
@@ -85,7 +87,34 @@ class Select2WithCreateWidget(ModelSelect2Widget):
             attrs['data-create-text'] = self.create_text
         return attrs
 
+
 class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Asegurar que los selects traen datos de la base
+        self.fields['marca'].queryset = Marca.objects.all()
+        self.fields['categoria'].queryset = Categoria.objects.all()
+        self.fields['proveedor'].queryset = Proveedor.objects.all()
+        self.fields['unidad'].queryset = Unidad.objects.all()
+
+        # Opcional: poner placeholders amigables
+        self.fields['marca'].empty_label = "Seleccione una marca"
+        self.fields['categoria'].empty_label = "Seleccione una categoría"
+        self.fields['proveedor'].empty_label = "Seleccione un proveedor"
+        self.fields['unidad'].empty_label = "Seleccione una unidad"
+
+
+
+class ProductoCreateView(CreateView):
+    model = Producto
+    form_class = ProductoForm
+    template_name = 'forms/formulario_crear.html'
+    success_url = reverse_lazy('apl:producto_list')
     class Meta:
         model = Producto
         fields = '__all__'
