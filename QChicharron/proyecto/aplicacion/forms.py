@@ -221,10 +221,15 @@ class VentaForm(forms.ModelForm):
 class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
-        fields = ['proveedor', 'producto', 'cantidad', 'fecha']
+        fields = ['proveedor', 'producto', 'cantidad', 'fecha', 'precio', 'unidad']  
         widgets = {
             'cantidad': forms.NumberInput(attrs={
-                'min': '0',     # evita negativos desde HTML
+                'min': '0',
+                'required': True,
+            }),
+            'precio': forms.NumberInput(attrs={
+                'min': '0',
+                'step': '0.01',  # para valores con decimales
                 'required': True,
             }),
         }
@@ -233,16 +238,14 @@ class CompraForm(forms.ModelForm):
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')
         if cantidad < 0:
-            raise forms.ValidationError("La cantidad no puede ser negativo.")
+            raise forms.ValidationError("La cantidad no puede ser negativa.")
         return cantidad
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # Mantener validaciones adicionales si las hubiera
-        return cleaned_data
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def clean_precio(self):
+        precio = self.cleaned_data.get('precio')
+        if precio < 0:
+            raise forms.ValidationError("El precio no puede ser negativo.")
+        return precio
 
 
 class InformeForm(forms.Form):
