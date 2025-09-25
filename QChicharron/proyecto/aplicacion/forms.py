@@ -151,3 +151,74 @@ class ProductoCreateView(CreateView):
                 create_text='+ Crear nueva unidad'
             ),
         }
+        
+
+
+class AdministradorForm(forms.ModelForm):
+    class Meta:
+        model = Administrador
+        fields = ['usuario', 'nivel_prioridad']
+
+    def clean_nivel_prioridad(self):
+        nivel = self.cleaned_data.get('nivel_prioridad')
+        if nivel is not None and nivel < 0:
+            raise forms.ValidationError("El nivel de prioridad debe ser positivo.")
+        return nivel
+
+
+class VentaForm(forms.ModelForm):
+    class Meta:
+        model = Venta
+        # no incluyo `fecha` porque es auto_now_add
+        fields = ["pedido", "total", "metodo_pago", "estado", "admin"]
+
+    def clean_total(self):
+        total = self.cleaned_data.get("total")
+        if total <= 0:
+            raise forms.ValidationError("El total debe ser mayor que 0.")
+        return total
+
+    def clean(self):
+        cleaned_data = super().clean()
+        pedido = cleaned_data.get("pedido")
+
+        if pedido is None:
+            raise forms.ValidationError("Debes seleccionar un pedido.")
+
+        # validación: un pedido no puede tener más de una venta pagada
+        if Venta.objects.filter(pedido=pedido, estado="pagado").exists():
+            raise forms.ValidationError(
+                f"El pedido {pedido.id} ya tiene una venta registrada como pagada."
+            )
+
+        return cleaned_data
+
+
+class CompraForm(forms.ModelForm):
+    class Meta:
+        model = Compra
+        fields = ['proveedor', 'producto', 'cantidad', 'fecha']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        cantidad = cleaned_data.get('cantidad')
+        precio = cleaned_data.get('precio_unitario')
+
+        if cantidad and cantidad <= 0:
+            self.add_error('cantidad', "La cantidad debe ser positiva.")
+
+        if precio and precio <= 0:
+            self.add_error('precio_unitario', "El precio debe ser positivo.")
+
+
+class InformeForm(forms.Form):
+    fecha_inicio = forms.DateField(required=True)
+    fecha_fin = forms.DateField(required=True)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha_inicio = cleaned_data.get("fecha_inicio")
+        fecha_fin = cleaned_data.get("fecha_fin")
+
+        if fecha_inicio and fecha_fin and fecha_inicio > fecha_fin:
+            raise forms.ValidationError("La fecha de inicio no puede ser mayor que la fecha fin.")

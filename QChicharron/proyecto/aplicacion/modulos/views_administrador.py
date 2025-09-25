@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from aplicacion.models import *
-
+from aplicacion.forms import AdministradorForm
 
 def listar_administradores(request):
     data = {
