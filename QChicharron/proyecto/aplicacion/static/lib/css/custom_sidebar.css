@@ -76,7 +76,7 @@
 .sidebar.toggled:hover .sidebar-heading,
 .sidebar.toggled:hover .sidebar-brand-text {
     display: inline !important;
-    opacity: 1;
+    opacity: 2 !important;
 }
 
 /* Mostrar los dividers al expandir */

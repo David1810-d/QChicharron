@@ -4,13 +4,7 @@ from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django_select2.forms import *
-
-#class MensajeForm(forms.ModelForm):
-#   class Meta:
-#       model = Mensaje
-#       fields = ['nombre', 'contenido']
-#ewfergergf
-
+from django.core.exceptions import ValidationError
 
 class PlatoForm(forms.ModelForm):
     class Meta:
@@ -92,7 +86,20 @@ class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
+        widgets = {
+            'stock': forms.NumberInput(attrs={
+                'min': '0',     # 🚫 evita negativos desde HTML
+                'required': True,
+            }),
+        }
 
+    # Validación a nivel de Django (backend)
+    def clean_stock(self):
+        stock = self.cleaned_data.get('stock')
+        if stock < 0:
+            raise forms.ValidationError("El stock no puede ser negativo.")
+        return stock
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

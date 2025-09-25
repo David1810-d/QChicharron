@@ -18,7 +18,7 @@ class ProductoListView(ListView):
         context['titulo'] = 'Lista de productos'
         context['modelo'] = 'producto'
         return context
-  
+    
 
 class ProductoCreateView(CreateView):
     model = Producto
@@ -38,7 +38,7 @@ class ProductoCreateView(CreateView):
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
+    form_class = ProductoForm
 
     def get_success_url(self):
         return reverse_lazy('apl:producto_list')
@@ -46,15 +46,12 @@ class ProductoUpdateView(UpdateView):
 
 class ProductoDeleteView(DeleteView):
     model = Producto
-    template_name = 'forms/confirmar_eliminacion.html'
+    success_url = reverse_lazy('apl:producto_list')
 
-    def get_success_url(self):
-        return reverse_lazy('apl:producto_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Eliminar producto'
-        return context
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return JsonResponse({"status": "ok"})
 
 
 # NUEVAS VISTAS AJAX PARA CREAR FOREIGN KEYS

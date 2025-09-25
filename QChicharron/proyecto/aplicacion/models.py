@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 import datetime
 import uuid
+from django.core.exceptions import ValidationError
 
 # ------------------ Modelos: Administrador, Usuario, Empleado -----------------------------
 
@@ -81,7 +82,7 @@ class Producto(models.Model):
         choices=[('plato', 'Plato'), ('venta', 'Venta')],
     )
     
-    stock = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0)
+    stock = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0,)
 
     def reducir_stock(self, cantidad):
 
@@ -90,7 +91,7 @@ class Producto(models.Model):
                 self.save()
             else:
                 raise ValueError("No hay suficiente stock")
-
+    
 
     def __str__(self):
 
