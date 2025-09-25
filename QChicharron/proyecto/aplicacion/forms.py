@@ -154,24 +154,44 @@ class ProductoCreateView(CreateView):
         
 
 
+# Administrador
 class AdministradorForm(forms.ModelForm):
     class Meta:
         model = Administrador
         fields = ['usuario', 'nivel_prioridad']
+        widgets = {
+            'nivel_prioridad': forms.NumberInput(attrs={
+                'min': '0',     # 🚫 evita negativos desde HTML
+                'required': True,
+            }),
+        }
 
+    # Validación a nivel de Django (backend)
     def clean_nivel_prioridad(self):
         nivel = self.cleaned_data.get('nivel_prioridad')
         if nivel is not None and nivel < 0:
             raise forms.ValidationError("El nivel de prioridad debe ser positivo.")
         return nivel
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
+# Venta
 class VentaForm(forms.ModelForm):
     class Meta:
         model = Venta
-        # no incluyo `fecha` porque es auto_now_add
         fields = ["pedido", "total", "metodo_pago", "estado", "admin"]
+        # no incluyo `fecha` porque ya es auto_now_add en el modelo
+        widgets = {
+            'total': forms.NumberInput(attrs={
+                'min': '0.01',  # 🚫 evita valores menores o iguales a 0
+                'step': '0.01',
+                'required': True,
+            }),
+        }
 
+    # Validación a nivel de Django (backend)
     def clean_total(self):
         total = self.cleaned_data.get("total")
         if total < 0:
@@ -192,8 +212,12 @@ class VentaForm(forms.ModelForm):
             )
 
         return cleaned_data
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
+# Compra
 class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
@@ -214,14 +238,11 @@ class CompraForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        cantidad = cleaned_data.get('cantidad')
-        precio = cleaned_data.get('precio_unitario')
-
-        if cantidad and cantidad <= 0:
-            self.add_error('cantidad', "La cantidad debe ser positiva.")
-
-        if precio and precio <= 0:
-            self.add_error('precio_unitario', "El precio debe ser positivo.")
+        # Mantener validaciones adicionales si las hubiera
+        return cleaned_data
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class InformeForm(forms.Form):
