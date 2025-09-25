@@ -25,7 +25,7 @@ class CompraListView(ListView):
 class CompraCreateView(CreateView):
     model = Compra
     template_name = 'forms/formulario_crear.html'
-    fields = ['producto', 'fecha', 'precio', 'proveedor', 'cantidad', 'unidad']
+    form_class = CompraForm
     success_url = '/apps/compras/listar/'
 
     def form_valid(self, form):

@@ -88,7 +88,7 @@ class ProductoForm(forms.ModelForm):
         fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
         widgets = {
             'stock': forms.NumberInput(attrs={
-                'min': '0',     # 🚫 evita negativos desde HTML
+                'min': '0',     # evita negativos desde HTML
                 'required': True,
             }),
         }
@@ -174,7 +174,7 @@ class VentaForm(forms.ModelForm):
 
     def clean_total(self):
         total = self.cleaned_data.get("total")
-        if total <= 0:
+        if total < 0:
             raise forms.ValidationError("El total debe ser mayor que 0.")
         return total
 
@@ -198,6 +198,19 @@ class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
         fields = ['proveedor', 'producto', 'cantidad', 'fecha']
+        widgets = {
+            'cantidad': forms.NumberInput(attrs={
+                'min': '0',     # evita negativos desde HTML
+                'required': True,
+            }),
+        }
+
+    # Validación a nivel de Django (backend)
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get('cantidad')
+        if cantidad < 0:
+            raise forms.ValidationError("La cantidad no puede ser negativo.")
+        return cantidad
 
     def clean(self):
         cleaned_data = super().clean()
