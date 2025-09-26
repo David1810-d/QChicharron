@@ -2,132 +2,130 @@
 
 {% block extra %}
     <!-- Botón -->
-    <button type="button" class="btn btn-success mt-2" data-bs-toggle="modal" data-bs-target="#productoModal">
-        Agregar Producto
-    </button>
+<!-- Botón para abrir modal -->
+<button type="button" class="btn btn-success mt-2" data-toggle="modal" data-target="#productoModalCrear">
+  Agregar Producto
+</button>
 
-    <!-- Modal -->
-    <div class="modal fade" id="productoModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          
-          <!-- Header -->
-          <div class="modal-header">
-            <h5 class="modal-title">Agregar Producto</h5>
-            <button type="button" class="btn" data-bs-dismiss="modal">×</button>
-          </div>
-          
-          <!-- Body -->
-          <div class="modal-body" id="modalFormContainer">
-            {% csrf_token %}
-            {{ formset.empty_form.as_p }}
-          </div>
-          
-          <!-- Footer -->
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-primary" id="guardarProducto">Guardar Producto</button>
-          </div>
-        </div>
+<!-- Modal Crear -->
+<div class="modal fade" id="productoModalCrear" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar Producto</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modalFormContainerCrear">
+        {% csrf_token %}
+        {{ formset.empty_form.as_p }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="guardarProductoCrear">Agregar Producto</button>
       </div>
     </div>
+  </div>
+</div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    
-    function setupGuardarButton() {
-        const guardarBtn = document.getElementById("guardarProducto");
-        if (!guardarBtn) {
-            setTimeout(setupGuardarButton, 100);
-            return;
-        }
-        
-        guardarBtn.addEventListener("click", function () {
-            console.log("=== INICIANDO GUARDADO ===");
-            
-            const totalForms = document.querySelector("input[name$='TOTAL_FORMS']");
-            const container = document.querySelector(".formset-container");
-            const modalContainer = document.getElementById("modalFormContainer");
-            
-            if (!totalForms || !container || !modalContainer) {
-                alert("ERROR: No se encontraron los elementos necesarios");
-                return;
-            }
-            
-            const formIndex = totalForms.value;
-            console.log("Índice actual:", formIndex);
-            
-            // OBTENER VALORES DIRECTAMENTE DEL MODAL
-            const productoSelect = document.querySelector("select[name*='__prefix__-producto']");
-            const cantidadInput = document.querySelector("input[name*='__prefix__-cantidad']");
-            const unidadInput = document.querySelector("input[name*='__prefix__-unidad']");
-            
-            console.log("Producto select:", productoSelect);
-            console.log("Cantidad input:", cantidadInput);
-            console.log("Unidad input:", unidadInput);
-            
-            if (!productoSelect || !cantidadInput || !unidadInput) {
-                alert("ERROR: No se encontraron todos los campos del modal");
-                return;
-            }
-            
-            // Obtener valores
-            const productoValue = productoSelect.value;
-            const cantidadValue = cantidadInput.value;
-            const unidadValue = unidadInput.value;
-            
-            console.log("Valores:", {
-                producto: productoValue,
-                cantidad: cantidadValue,
-                unidad: unidadValue
-            });
-            
-            // Validar que se hayan ingresado datos
-            if (!productoValue || !cantidadValue || !unidadValue) {
-                alert("Por favor complete todos los campos");
-                return;
-            }
-            
-            // CREAR NUEVO FORMULARIO
-            const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
-            const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
-            
-            const newDiv = document.createElement("div");
-            newDiv.classList.add("formset-form");
-            newDiv.innerHTML = newFormHtml;
-            
-            // ASIGNAR VALORES AL NUEVO FORMULARIO
-            const newProductoSelect = newDiv.querySelector("select[name*='-producto']");
-            const newCantidadInput = newDiv.querySelector("input[name*='-cantidad']");
-            const newUnidadInput = newDiv.querySelector("input[name*='-unidad']");
-            
-            if (newProductoSelect) newProductoSelect.value = productoValue;
-            if (newCantidadInput) newCantidadInput.value = cantidadValue;
-            if (newUnidadInput) newUnidadInput.value = unidadValue;
-            
-            // AGREGAR AL FORMSET
-            container.appendChild(newDiv);
-            
-            // ACTUALIZAR CONTADOR
-            totalForms.value = parseInt(formIndex) + 1;
-            
-            console.log("Nuevo total:", totalForms.value);
-            
-            // LIMPIAR MODAL
-            productoSelect.value = "";
-            cantidadInput.value = "";
-            unidadInput.value = "";
-            
-            // CERRAR MODAL
-            const modalElement = document.getElementById("productoModal");
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            if (modal) {
-                modal.hide();
-            }
-        });
+  $(document).ready(function() {
+
+  // Crear Producto
+  $(document).on('click', '#guardarProductoCrear', function(e) {
+    e.preventDefault();
+    const $modal = $('#productoModalCrear');
+
+    console.log("=== AGREGANDO PRODUCTO (Crear) ===");
+
+    const totalForms = $("input[name$='TOTAL_FORMS']");
+    const form = $(".form-container form");
+    const submitButton = form.find("button[type='submit']");
+
+    if (!totalForms.length || !form.length) {
+      alert("ERROR: No se encontraron los elementos necesarios en el formulario principal.");
+      return;
     }
-    
-    setupGuardarButton();
+
+    const formIndex = totalForms.val();
+    const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
+    const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
+
+    const $newDiv = $('<div class="producto-form"></div>').html(newFormHtml);
+
+    // Tomar valores dentro del modal
+    const productoVal = $modal.find("select[name*='__prefix__-producto']").val();
+    const cantidadVal = $modal.find("input[name*='__prefix__-cantidad']").val();
+    const unidadVal   = $modal.find("input[name*='__prefix__-unidad']").val();
+
+    if (!productoVal || !cantidadVal || !unidadVal) {
+      alert("Por favor complete todos los campos");
+      return;
+    }
+
+    // Asignar valores al nuevo form
+    $newDiv.find("select[name*='-producto']").val(productoVal);
+    $newDiv.find("input[name*='-cantidad']").val(cantidadVal);
+    $newDiv.find("input[name*='-unidad']").val(unidadVal);
+
+    submitButton.before($newDiv);
+    totalForms.val(parseInt(formIndex, 10) + 1);
+
+    // Limpiar modal
+    $modal.find("select, input").val('');
+    $modal.modal('hide');
+
+    alert("¡Producto agregado exitosamente!");
+  });
+
+  // Actualizar Producto
+  $(document).on('click', '#guardarProductoActualizar', function(e) {
+    e.preventDefault();
+    const $modal = $('#productoModalActualizar');
+
+    console.log("=== AGREGANDO PRODUCTO (Actualizar) ===");
+
+    const totalForms = $("input[name$='TOTAL_FORMS']");
+    const form = $(".form-container form");
+    const submitButton = form.find("button[type='submit']");
+
+    if (!totalForms.length || !form.length) {
+      alert("ERROR: No se encontraron los elementos necesarios en el formulario principal.");
+      return;
+    }
+
+    const formIndex = totalForms.val();
+    const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
+    const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
+
+    const $newDiv = $('<div class="producto-form"></div>').html(newFormHtml);
+
+    // Tomar valores dentro del modal
+    const productoVal = $modal.find("select[name*='__prefix__-producto']").val();
+    const cantidadVal = $modal.find("input[name*='__prefix__-cantidad']").val();
+    const unidadVal   = $modal.find("input[name*='__prefix__-unidad']").val();
+
+    if (!productoVal || !cantidadVal || !unidadVal) {
+      alert("Por favor complete todos los campos");
+      return;
+    }
+
+    // Asignar valores al nuevo form
+    $newDiv.find("select[name*='-producto']").val(productoVal);
+    $newDiv.find("input[name*='-cantidad']").val(cantidadVal);
+    $newDiv.find("input[name*='-unidad']").val(unidadVal);
+
+    submitButton.before($newDiv);
+    totalForms.val(parseInt(formIndex, 10) + 1);
+
+    // Limpiar modal
+    $modal.find("select, input").val('');
+    $modal.modal('hide');
+
+    alert("¡Producto agregado exitosamente!");
+  });
+
 });
 </script>
 

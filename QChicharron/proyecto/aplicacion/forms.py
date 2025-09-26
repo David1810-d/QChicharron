@@ -1,10 +1,22 @@
 from django import forms
 from aplicacion.models import *
-from django.forms import inlineformset_factory
+from django.forms import ModelForm, inlineformset_factory
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django_select2.forms import *
 from django.core.exceptions import ValidationError
+from aplicacion.models import (
+    Plato,
+    PlatoProducto,
+    Menu,
+    Pedido,
+    PedidoDetalle,
+    Producto,
+    Marca,
+    Categoria,
+    Proveedor,
+    Unidad,
+)
 
 class PlatoForm(forms.ModelForm):
     class Meta:
@@ -17,8 +29,21 @@ class PlatoProductoForm(forms.ModelForm):
         model = PlatoProducto
         fields = ['producto', 'cantidad', 'unidad']
         widgets = {
-            'producto': Select2Widget,
+            'producto': Select2Widget(attrs={'class': 'select2'}),
         }
+        
+class PedidoForm(ModelForm):
+    class Meta:
+        model = Pedido
+        fields = ['mesa', 'estado']  # campos del pedido que quieres mostrar
+
+# Formset para agregar menús y cantidades al pedido
+PedidoDetalleFormSet = inlineformset_factory(
+    Pedido,
+    PedidoDetalle,
+    fields=['menu', 'cantidad'],
+    extra=1,       # cuántos campos extra mostrar al cargar
+)        
 
 PlatoProductoFormSet = inlineformset_factory(
     Plato,
