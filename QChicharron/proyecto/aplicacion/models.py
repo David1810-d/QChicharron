@@ -157,21 +157,7 @@ class Mesa(models.Model):
 
     def __str__(self):
         return f"Mesa {self.id} - {self.ubicacion}"
-
-class Pedido(models.Model):
-    mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(default=timezone.now)  # ← CORREGIDO
-    estado = models.CharField(max_length=20, choices=[
-        ('pendiente', 'Pendiente'), 
-        ('entregado', 'Entregado')
-    ])
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def __str__(self):
-        return f"Pedido {self.id} - Mesa {self.mesa.id}"
-
-# ---------------------------- Menú y Plato -----------------------------
-
+    
 class Menu(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
@@ -179,7 +165,7 @@ class Menu(models.Model):
 
     def __str__(self):
         return self.nombre
-
+    
 class Plato(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
@@ -194,6 +180,38 @@ class Plato(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class Pedido(models.Model):
+    mesa = models.ForeignKey("Mesa", on_delete=models.CASCADE)
+    menu = models.ForeignKey("Menu", on_delete=models.CASCADE, default=1)
+    fecha = models.DateTimeField(default=timezone.now)
+    estado = models.CharField(
+        max_length=20,
+        choices=[('pendiente', 'Pendiente'), ('entregado', 'Entregado')],
+        default='pendiente'
+    )
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Pedido {self.id} - Mesa {self.mesa.id}"
+
+    def calcular_subtotal(self):
+        total = sum(detalle.menu.precio * detalle.cantidad for detalle in self.detalles.all())
+        self.subtotal = total
+        return total
+
+    def save(self, *args, **kwargs):
+        self.calcular_subtotal()
+        super().save(*args, **kwargs)
+
+
+class PedidoDetalle(models.Model):
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
+    menu = models.ForeignKey("Menu", on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.cantidad} x {self.menu.nombre} (Pedido {self.pedido.id})"
 
 # ---------------------------- Relaciones: PedidoProducto, PedidoMenu, PlatoProducto -----------------------------
 
@@ -212,7 +230,7 @@ class PedidoProducto(models.Model):
 class PedidoMenu(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
     menu = models.ForeignKey(
-        Menu, 
+        "Menu", 
         on_delete=models.CASCADE,
         related_name="pedidos_menu"
     )
@@ -223,7 +241,7 @@ class PedidoMenu(models.Model):
 
 
 class PlatoProducto(models.Model):
-    plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
+    plato = models.ForeignKey("Plato", on_delete=models.CASCADE)
     producto = models.ForeignKey(
         Producto, 
         on_delete=models.CASCADE,
