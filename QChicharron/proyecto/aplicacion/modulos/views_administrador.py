@@ -26,7 +26,7 @@ class AdministradorListView(ListView):
 class AdministradorCreateView(CreateView):
     model = Administrador
     template_name = 'forms/formulario_crear.html'
-    fields = ['usuario', 'nivel_prioridad']
+    form_class = AdministradorForm
     success_url = '/apps/administradores/listar/'
 
     def form_valid(self, form):
@@ -42,7 +42,7 @@ class AdministradorCreateView(CreateView):
 class AdministradorUpdateView(UpdateView):
     model = Administrador
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['usuario', 'nivel_prioridad']
+    form_class = AdministradorForm
     success_url = '/apps/administradores/listar/'
 
     def form_valid(self, form):
