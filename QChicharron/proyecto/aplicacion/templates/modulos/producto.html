@@ -1,10 +1,15 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">{{ titulo }}</h6>
-    </div>
+
+    <div class="card shadow mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center py-3 mb-3">
+                <h6 class="m-0 font-weight-bold text-primary">{{ titulo }}</h6>
+                <a href="{% url 'apl:crear_producto' %}" class="btn btn-success btn-sm">
+                    <i class="bi bi-plus-circle"></i> Nuevo Producto
+                </a>
+            </div>
+</div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -23,11 +28,8 @@
 
         <th>Stock</th>
         <th>Detalle</th>
-        
-                        <th>  <a href="{% url 'apl:crear_producto' %}">
-                                <button type="button" class="btn btn-block btn-success btn-lg">
-                                    <i class="bi bi-plus-circle-fill"></i>
-                                </button> </th>
+        <th>Acciones</th>
+
     </tr>
 </thead>
 <tbody>
@@ -49,21 +51,48 @@
                     <i class="bi bi-pen-fill"></i>
                 </button>
             </a>
-            <a href="{% url 'apl:eliminar_producto' p.id %}">
-                <button type="button" class="btn btn-danger btn-sm d-inline mb-1">
-                    <i class="bi bi-trash3-fill"></i>
+          
+                <button type="button" onclick="eliminarProducto({{ p.pk }})" class="btn btn-danger">
+                    
+                <i class="bi bi-trash3-fill"></i>
                 </button>
-            </a>
-        </td>
-    </tr>
-    {% empty %}
-    <tr>
-        <td colspan="10">No hay productos registrados.</td>
-    </tr>
-    {% endfor %}
-</tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{% endblock %}
+                
+{%endfor%}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function eliminarProducto(pk) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esta acción",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "{% url 'apl:eliminar_producto' 0 %}".replace("0", pk);
+
+            fetch(url, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    Swal.fire('Eliminado!', 'El producto fue eliminado correctamente.', 'success')
+                        .then(() => {
+                            location.reload(); // 🔹 Recarga la tabla sin redirigir a otra vista
+                        });
+                }
+            });
+        }
+    });
+}
+</script>
+{%endblock%}
+

@@ -14,7 +14,7 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
-    <!-- Tus estilos personalizados (deben ir al final) -->
+    <!-- Tus estilos personalizados (al final para que sobrescriban) -->
     <link href="{% static 'lib/css/custom.css' %}" rel="stylesheet">
     <link href="{% static 'lib/css/custom_sidebar.css' %}" rel="stylesheet">
 
@@ -41,21 +41,20 @@
     </div>
 </div>
 
-<!-- Scripts necesarios (al final para mejor performance) -->
+<!-- Scripts necesarios (orden correcto) -->
 <script src="{% static 'lib/vendor/jquery/jquery.min.js' %}"></script>
 <script src="{% static 'lib/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'lib/vendor/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'lib/vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+
+<!-- Core de SB Admin -->
 <script src="{% static 'lib/js/sb-admin-2.min.js' %}"></script>
 
-<!-- jQuery adicional (solo si lo necesitas, ya tienes jquery arriba) -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<!-- Tu script personalizado para sidebar -->
+<script src="{% static 'lib/js/custom_sidebar.js' %}"></script>
 
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-<!-- Bootstrap JS de CDN (ya tienes el bundle local, este es opcional) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 $(document).ready(function() {

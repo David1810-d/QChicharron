@@ -2,9 +2,6 @@ from django.db import models
 from django.utils import timezone
 import datetime
 import uuid
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
-
 
 # ------------------ Modelos: Administrador, Usuario, Empleado -----------------------------
 
@@ -84,7 +81,7 @@ class Producto(models.Model):
         choices=[('plato', 'Plato'), ('venta', 'Venta')],
     )
     
-    stock = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0)
+    stock = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True, default=0,)
 
     def reducir_stock(self, cantidad):
 
@@ -93,7 +90,7 @@ class Producto(models.Model):
                 self.save()
             else:
                 raise ValueError("No hay suficiente stock")
-
+    
 
     def __str__(self):
 
@@ -353,6 +350,25 @@ class Venta(models.Model):
         ("cancelado", "Cancelado"),
     ], default="pendiente")
     admin = models.ForeignKey(Administrador, on_delete=models.SET_NULL, null=True)
+
+    def save(self, *args, **kwargs):
+        
+        if not self.pk:  # Solo la primera vez que se crea la venta
+            for detalle in self.pedido.detallepedido_set.all():
+                producto = detalle.producto
+                cantidad = detalle.cantidad
+                producto.stock = (producto.stock or 0) - cantidad
+                producto.save()
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        
+        for detalle in self.pedido.detallepedido_set.all():
+            producto = detalle.producto
+            cantidad = detalle.cantidad
+            producto.stock = (producto.stock or 0) + cantidad
+            producto.save()
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"Venta #{self.id} - Pedido {self.pedido.id}"

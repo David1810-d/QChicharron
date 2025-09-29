@@ -7,42 +7,78 @@
             <button class="btn btn-success btn-sm"><i class="bi bi-plus-circle-fill"></i> Nueva</button>
         </a>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Producto</th>
-                        <th>Fecha</th>
-                        <th>Precio</th>
-                        <th>Proveedor</th>
-                        <th>Cantidad</th>
-                        <th>Unidad de compra</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in compras %}
-                    <tr>
-                        <td>{{ c.id_factura }}</td>
-                        <td>{{ c.producto.nombre }}</td>
-                        <td>{{ c.fecha }}</td>
-                        <td>{{ c.precio }} </td>
-                        <td>{{ c.proveedor}}</td>
-                        <td>{{ c.cantidad }}</td>
-                        <td>{{ c.unidad}}</td>
-                        <td>
-                            <a href="{% url 'apl:compra_editar' c.id_factura %}" class="btn btn-warning btn-sm"><i class="bi bi-pen-fill"></i></a>
-                            <a href="{% url 'apl:compra_eliminar' c.id_factura %}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="6">No hay compras registradas.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+</div>
+<div class="card-body">
+    <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Fecha</th>
+                    <th>Precio</th>
+                    <th>Proveedor</th>
+                    <th>Cantidad</th>
+                    <th>Unidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in compras %}
+                <tr>
+                    <td>{{ c.id_factura }}</td>
+                    <td>{{ c.producto.nombre }}</td>
+                    <td>{{ c.fecha }}</td>
+                    <td>{{ c.precio }}</td>
+                    <td>{{ c.proveedor }}</td>
+                    <td>{{ c.cantidad }}</td>
+                    <td>{{ c.unidad }}</td>
+                    <td>
+                        <a href="{% url 'apl:compra_editar' c.id_factura %}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pen-fill"></i>
+                        </a>
+                        <button type="button" onclick="eliminarCompra({{ c.id_factura }})" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8">No hay compras registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function eliminarCompra(pk) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "No podrás revertir esta acción",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "{% url 'apl:compra_eliminar' 0 %}".replace("0", pk);
+
+            fetch(url, {
+                method: "DELETE",
+                headers: { "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    Swal.fire('Eliminada!', 'La compra fue eliminada correctamente.', 'success')
+                        .then(() => { location.reload(); });
+                }
+            });
+        }
+    });
+}
+</script>
 {% endblock %}

@@ -1,7 +1,7 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.shortcuts import render
 from aplicacion.models import *
-
+from aplicacion.forms import InformeForm
 
 def listar_informes(request):
     data = {
