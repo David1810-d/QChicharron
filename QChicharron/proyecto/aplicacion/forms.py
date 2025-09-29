@@ -88,7 +88,7 @@ class ProductoForm(forms.ModelForm):
         fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
         widgets = {
             'stock': forms.NumberInput(attrs={
-                'min': '0',     # 🚫 evita negativos desde HTML
+                'min': '0',     # evita negativos desde HTML
                 'required': True,
             }),
         }
@@ -154,38 +154,66 @@ class ProductoCreateView(CreateView):
         
 
 
+# Administrador
 class AdministradorForm(forms.ModelForm):
     class Meta:
         model = Administrador
         fields = ['usuario', 'nivel_prioridad']
+        widgets = {
+            'nivel_prioridad': forms.NumberInput(attrs={
+                'min': '0',
+                'required': True,
+            }),
+        }
 
+    # Validación a nivel de Django (backend)
     def clean_nivel_prioridad(self):
-        nivel = self.cleaned_data.get('nivel_prioridad')
-        if nivel is not None and nivel < 0:
-            raise forms.ValidationError("El nivel de prioridad debe ser positivo.")
-        return nivel
+        nivel_prioridad = self.cleaned_data.get('nivel_prioridad')
+        print(f"DEBUG: nivel_prioridad = {nivel_prioridad}, tipo: {type(nivel_prioridad)}")  # Para debug
+        
+        if nivel_prioridad is not None and nivel_prioridad < 0:
+            raise forms.ValidationError("El nivel de prioridad no puede ser negativo.")
+        return nivel_prioridad
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        nivel_prioridad = cleaned_data.get('nivel_prioridad')
+        
+        # Validación adicional en clean general
+        if nivel_prioridad is not None and nivel_prioridad < 0:
+            raise forms.ValidationError("El nivel de prioridad no puede ser negativo.")
+        
+        return cleaned_data
 
 
+# Venta
 class VentaForm(forms.ModelForm):
     class Meta:
         model = Venta
-        # no incluyo `fecha` porque es auto_now_add
-        fields = ["pedido", "total", "metodo_pago", "estado", "admin"]
+        fields = ['pedido', 'total', 'metodo_pago', 'estado', 'admin']
+        widgets = {
+            'total': forms.NumberInput(attrs={
+                'min': '0',
+                'step': '0.01',  # para valores con decimales
+                'required': True,
+            }),
+        }
 
+    # Validación a nivel de Django (backend)
     def clean_total(self):
-        total = self.cleaned_data.get("total")
-        if total <= 0:
-            raise forms.ValidationError("El total debe ser mayor que 0.")
+        total = self.cleaned_data.get('total')
+        if total is not None and total < 0:
+            raise forms.ValidationError("El total no puede ser negativo.")
         return total
 
     def clean(self):
         cleaned_data = super().clean()
-        pedido = cleaned_data.get("pedido")
+        pedido = cleaned_data.get('pedido')
 
         if pedido is None:
             raise forms.ValidationError("Debes seleccionar un pedido.")
 
-        # validación: un pedido no puede tener más de una venta pagada
+        # Validación: un pedido no puede tener más de una venta pagada
         if Venta.objects.filter(pedido=pedido, estado="pagado").exists():
             raise forms.ValidationError(
                 f"El pedido {pedido.id} ya tiene una venta registrada como pagada."
@@ -194,21 +222,35 @@ class VentaForm(forms.ModelForm):
         return cleaned_data
 
 
+# Compra
 class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
-        fields = ['proveedor', 'producto', 'cantidad', 'fecha']
+        fields = ['proveedor', 'producto', 'cantidad', 'fecha', 'precio', 'unidad']  
+        widgets = {
+            'cantidad': forms.NumberInput(attrs={
+                'min': '0',
+                'required': True,
+            }),
+            'precio': forms.NumberInput(attrs={
+                'min': '0',
+                'step': '0.01',  # para valores con decimales
+                'required': True,
+            }),
+        }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        cantidad = cleaned_data.get('cantidad')
-        precio = cleaned_data.get('precio_unitario')
+    # Validación a nivel de Django (backend)
+    def clean_cantidad(self):
+        cantidad = self.cleaned_data.get('cantidad')
+        if cantidad < 0:
+            raise forms.ValidationError("La cantidad no puede ser negativa.")
+        return cantidad
 
-        if cantidad and cantidad <= 0:
-            self.add_error('cantidad', "La cantidad debe ser positiva.")
-
-        if precio and precio <= 0:
-            self.add_error('precio_unitario', "El precio debe ser positivo.")
+    def clean_precio(self):
+        precio = self.cleaned_data.get('precio')
+        if precio < 0:
+            raise forms.ValidationError("El precio no puede ser negativo.")
+        return precio
 
 
 class InformeForm(forms.Form):
