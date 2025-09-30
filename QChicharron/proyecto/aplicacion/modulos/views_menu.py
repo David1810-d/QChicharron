@@ -8,12 +8,12 @@ def listar_menu(request):
     data = {
         "menus": "menus",
         "titulo": "Listado de Menús",
-        "menu": Menu.objects.all()
+        "menu": "Menu".objects.all()
     }
     return render(request, 'modulos/menu.html', data)
 
 class MenuListView(ListView):
-    model = Menu
+    model = "Menu"
     template_name = 'modulos/menu.html'
     context_object_name = 'menus'
     
@@ -24,7 +24,7 @@ class MenuListView(ListView):
         return context
 
 class MenuCreateView(CreateView):
-    model = Menu
+    model = "Menu"
     template_name = 'forms/formulario_crear.html'
     fields = ['nombre', 'descripcion', 'precio']
     
@@ -39,7 +39,7 @@ class MenuCreateView(CreateView):
     
 
 class MenuUpdateView(UpdateView):
-    model = Menu
+    model = "Menu"
     template_name = 'forms/formulario_actualizacion.html'
     fields = ['nombre', 'descripcion', 'precio']
     
@@ -47,7 +47,7 @@ class MenuUpdateView(UpdateView):
         return reverse_lazy('apl:menu_list')
 
 class MenuDeleteView(DeleteView):
-    model = Menu
+    model = "Menu"
     template_name = 'forms/confirmar_eliminacion.html'
     
     def get_success_url(self):

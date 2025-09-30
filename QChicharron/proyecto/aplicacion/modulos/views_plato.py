@@ -3,7 +3,9 @@ from aplicacion.models import *
 from django.views.generic import *
 from aplicacion.forms import PlatoForm, PlatoProductoFormSet
 from django.urls import reverse_lazy
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 def listar_plato(request):
     data = {
@@ -29,10 +31,12 @@ class PlatoCreateView(CreateView):
     template_name = 'forms/formulario_crear_plato.html'
     success_url = reverse_lazy('apl:listar_plato')
 
+    # CORREGIDO: Ahora está dentro de la clase
     def get(self, request, *args, **kwargs):
         self.object = None
         form = self.get_form()
-        formset = PlatoProductoFormSet()
+        # Inicializar formset vacío
+        formset = PlatoProductoFormSet(queryset=PlatoProducto.objects.none())
         return render(request, self.template_name, {
             'form': form,
             'formset': formset,
@@ -93,12 +97,13 @@ class PlatoUpdateView(UpdateView):
             'entidad': 'Plato'
         })
     
+
+@method_decorator(csrf_exempt, name="dispatch")
 class PlatoDeleteView(DeleteView):
     model = Plato
-    template_name = 'forms/confirmar_eliminacion.html'
-    success_url = '/apps/platos/listar/'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Eliminar Plato'
-        return context
+    success_url = reverse_lazy('apl:listar_plato')
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.delete()
+        return JsonResponse({"status": "ok"})
