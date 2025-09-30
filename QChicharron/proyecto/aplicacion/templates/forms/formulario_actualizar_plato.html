@@ -18,8 +18,7 @@
         </button>
       </div>
       <div class="modal-body" id="modalFormContainerActualizar">
-        {% csrf_token %}
-        {{ formset.empty_form.as_p }}
+        <div class="loading">Cargando formulario...</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -29,104 +28,103 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
+  console.log("=== SCRIPT MODAL ACTUALIZAR CARGADO ===");
+  
   $(document).ready(function() {
 
-  // Crear Producto
-  $(document).on('click', '#guardarProductoCrear', function(e) {
-    e.preventDefault();
-    const $modal = $('#productoModalCrear');
+    // Cargar formulario cuando se abre el modal de actualizar
+    $('#productoModalActualizar').on('show.bs.modal', function (e) {
+      console.log("=== MODAL ACTUALIZAR ABRIENDO ===");
+      
+      const totalForms = $("input[name$='TOTAL_FORMS']");
+      console.log("Total forms encontrados:", totalForms.length);
+      
+      if (!totalForms.length) {
+        e.preventDefault();
+        alert("ERROR: No se encontró el formset.");
+        return;
+      }
 
-    console.log("=== AGREGANDO PRODUCTO (Crear) ===");
+      const formIndex = totalForms.val();
+      console.log("Form index:", formIndex);
+      
+      const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
+      console.log("Empty form HTML length:", emptyFormHtml.length);
+      
+      if (emptyFormHtml.trim() === '') {
+        e.preventDefault();
+        alert("ERROR: El formset no está disponible.");
+        return;
+      }
+      
+      const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
+      $('#modalFormContainerActualizar').html(newFormHtml);
+      
+      // Inicializar select2 en los selects del modal
+      $('#modalFormContainerActualizar select').select2({
+        dropdownParent: $('#productoModalActualizar'),
+        width: '100%'
+      });
+      
+      console.log("Formulario cargado en modal actualizar");
+    });
 
-    const totalForms = $("input[name$='TOTAL_FORMS']");
-    const form = $(".form-container form");
-    const submitButton = form.find("button[type='submit']");
+    // Agregar Producto desde modal actualizar
+    $(document).on('click', '#guardarProductoActualizar', function(e) {
+      e.preventDefault();
+      const $modal = $('#productoModalActualizar');
 
-    if (!totalForms.length || !form.length) {
-      alert("ERROR: No se encontraron los elementos necesarios en el formulario principal.");
-      return;
-    }
+      console.log("=== GUARDANDO PRODUCTO (Actualizar) ===");
 
-    const formIndex = totalForms.val();
-    const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
-    const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
+      const totalForms = $("input[name$='TOTAL_FORMS']");
+      const form = $(".form-container form");
+      const submitButton = form.find("button[type='submit']");
 
-    const $newDiv = $('<div class="producto-form"></div>').html(newFormHtml);
+      if (!totalForms.length || !form.length) {
+        alert("ERROR: No se encontraron los elementos necesarios.");
+        return;
+      }
 
-    // Tomar valores dentro del modal
-    const productoVal = $modal.find("select[name*='__prefix__-producto']").val();
-    const cantidadVal = $modal.find("input[name*='__prefix__-cantidad']").val();
-    const unidadVal   = $modal.find("input[name*='__prefix__-unidad']").val();
+      const formIndex = totalForms.val();
 
-    if (!productoVal || !cantidadVal || !unidadVal) {
-      alert("Por favor complete todos los campos");
-      return;
-    }
+      // Tomar valores dentro del modal
+      const productoVal = $modal.find("select[name*='-producto']").val();
+      const cantidadVal = $modal.find("input[name*='-cantidad']").val();
+      const unidadVal   = $modal.find("input[name*='-unidad']").val();
 
-    // Asignar valores al nuevo form
-    $newDiv.find("select[name*='-producto']").val(productoVal);
-    $newDiv.find("input[name*='-cantidad']").val(cantidadVal);
-    $newDiv.find("input[name*='-unidad']").val(unidadVal);
+      console.log("Valores capturados:", {productoVal, cantidadVal, unidadVal});
 
-    submitButton.before($newDiv);
-    totalForms.val(parseInt(formIndex, 10) + 1);
+      if (!productoVal || !cantidadVal || !unidadVal) {
+        alert("Por favor complete todos los campos");
+        return;
+      }
 
-    // Limpiar modal
-    $modal.find("select, input").val('');
-    $modal.modal('hide');
+      // Crear nuevo formulario con los valores
+      const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
+      const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
+      const $newDiv = $('<div class="producto-form"></div>').html(newFormHtml);
 
-    alert("¡Producto agregado exitosamente!");
+      // Asignar valores
+      $newDiv.find("select[name*='-producto']").val(productoVal);
+      $newDiv.find("input[name*='-cantidad']").val(cantidadVal);
+      $newDiv.find("input[name*='-unidad']").val(unidadVal);
+
+      // Agregar antes del botón submit
+      submitButton.before($newDiv);
+      totalForms.val(parseInt(formIndex, 10) + 1);
+
+      // Cerrar modal
+      $modal.modal('hide');
+      alert("¡Producto agregado exitosamente!");
+      
+      console.log("Producto agregado, nuevo total:", totalForms.val());
+    });
+
+    console.log("=== LISTENERS MODAL ACTUALIZAR REGISTRADOS ===");
   });
-
-  // Actualizar Producto
-  $(document).on('click', '#guardarProductoActualizar', function(e) {
-    e.preventDefault();
-    const $modal = $('#productoModalActualizar');
-
-    console.log("=== AGREGANDO PRODUCTO (Actualizar) ===");
-
-    const totalForms = $("input[name$='TOTAL_FORMS']");
-    const form = $(".form-container form");
-    const submitButton = form.find("button[type='submit']");
-
-    if (!totalForms.length || !form.length) {
-      alert("ERROR: No se encontraron los elementos necesarios en el formulario principal.");
-      return;
-    }
-
-    const formIndex = totalForms.val();
-    const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
-    const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
-
-    const $newDiv = $('<div class="producto-form"></div>').html(newFormHtml);
-
-    // Tomar valores dentro del modal
-    const productoVal = $modal.find("select[name*='__prefix__-producto']").val();
-    const cantidadVal = $modal.find("input[name*='__prefix__-cantidad']").val();
-    const unidadVal   = $modal.find("input[name*='__prefix__-unidad']").val();
-
-    if (!productoVal || !cantidadVal || !unidadVal) {
-      alert("Por favor complete todos los campos");
-      return;
-    }
-
-    // Asignar valores al nuevo form
-    $newDiv.find("select[name*='-producto']").val(productoVal);
-    $newDiv.find("input[name*='-cantidad']").val(cantidadVal);
-    $newDiv.find("input[name*='-unidad']").val(unidadVal);
-
-    submitButton.before($newDiv);
-    totalForms.val(parseInt(formIndex, 10) + 1);
-
-    // Limpiar modal
-    $modal.find("select, input").val('');
-    $modal.modal('hide');
-
-    alert("¡Producto agregado exitosamente!");
-  });
-
-});
 </script>
-
 {% endblock %}

@@ -31,17 +31,18 @@ class PlatoCreateView(CreateView):
     template_name = 'forms/formulario_crear_plato.html'
     success_url = reverse_lazy('apl:listar_plato')
 
-def get(self, request, *args, **kwargs):
-    self.object = None
-    form = self.get_form()
-    # Inicializar formset vacío
-    formset = PlatoProductoFormSet(queryset=PlatoProducto.objects.none())
-    return render(request, self.template_name, {
-        'form': form,
-        'formset': formset,
-        'titulo': 'Crear Plato',
-        'entidad': 'Plato'
-    })
+    # CORREGIDO: Ahora está dentro de la clase
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        form = self.get_form()
+        # Inicializar formset vacío
+        formset = PlatoProductoFormSet(queryset=PlatoProducto.objects.none())
+        return render(request, self.template_name, {
+            'form': form,
+            'formset': formset,
+            'titulo': 'Crear Plato',
+            'entidad': 'Plato'
+        })
 
     def post(self, request, *args, **kwargs):
         self.object = None
