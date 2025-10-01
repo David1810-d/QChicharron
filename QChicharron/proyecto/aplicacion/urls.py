@@ -69,13 +69,7 @@ urlpatterns = [
     path('productos/crear/', ProductoCreateView.as_view(), name='crear_producto'),
     path('productos/editar/<str:pk>/', ProductoUpdateView.as_view(), name='editar_producto'),
     path('productos/eliminar/<str:pk>/', ProductoDeleteView.as_view(), name='eliminar_producto'),
-    
-        # NUEVAS URLs AJAX PARA CREAR FOREIGN KEYS
 
-path('ajax/crear-marca/', crear_marca_ajax, name='crear_marca_ajax'),
-path('ajax/crear-categoria/', crear_categoria_ajax, name='crear_categoria_ajax'),
-path('ajax/crear-proveedor/', crear_proveedor_ajax, name='crear_proveedor_ajax'),
-path('ajax/crear-unidad/', crear_unidad_ajax, name='crear_unidad_ajax'),
     #_________________________ Modulos de Proveedor __________________________
     path('proveedores/', ProveedorListView.as_view(), name='proveedor_list'),
     path('proveedores/crear/', ProveedorCreateView.as_view(), name='crear_proveedor'),

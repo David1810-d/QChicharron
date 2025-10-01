@@ -4,384 +4,194 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'lib/css/forms.css' %}">
 <link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
-<!-- Select2 CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
 
+<h2>{{ titulo }}</h2>
+
+<!-- Mensajes -->
+{% if messages %}
+<div id="messages-container">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ===== FORMULARIO PRINCIPAL ===== -->
 <div class="form-container">
-    {{ titulo }}
-    
-    <!-- Contenedor para mensajes -->
-    <div id="messages-container"></div>
-    
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         
-        <!-- Campo Nombre -->
-        <p>
-            <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}:</label>
+        <!-- Nombre -->
+        <div class="mb-3">
+            <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
             {{ form.nombre }}
-        </p>
-        
-        <!-- Campo Marca con botón -->
-        <div class="field-with-button">
-            <div>
-                <label for="{{ form.marca.id_for_label }}">{{ form.marca.label }}:</label>
-                {{ form.marca }}
-            </div>
-            <button type="button" class="create-button" onclick="abrirModal('modalMarca')">+ Nueva</button>
-        </div>
-        
-        <!-- Campo Categoría con botón -->
-        <div class="field-with-button">
-            <div>
-                <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}:</label>
-                {{ form.categoria }}
-            </div>
-            <button type="button" class="create-button" onclick="abrirModal('modalCategoria')">+ Nueva</button>
-        </div>
-        
-        <!-- Campo Proveedor con botón -->
-        <div class="field-with-button">
-            <div>
-                <label for="{{ form.proveedor.id_for_label }}">{{ form.proveedor.label }}:</label>
-                {{ form.proveedor }}
-            </div>
-            <button type="button" class="create-button" onclick="abrirModal('modalProveedor')">+ Nuevo</button>
-        </div>
-        
-        <!-- Campo Tipo de Uso -->
-        <p>
-            <label for="{{ form.tipo_uso.id_for_label }}">{{ form.tipo_uso.label }}:</label>
-            {{ form.tipo_uso }}
-        </p>
-        
-        <!-- Campo Unidad con botón -->
-        <div class="field-with-button">
-            <div>
-                <label for="{{ form.unidad.id_for_label }}">{{ form.unidad.label }}:</label>
-                {{ form.unidad }}
-            </div>
-            <button type="button" class="create-button" onclick="abrirModal('modalUnidad')">+ Nueva</button>
-        </div>
-        
-        <!-- Campo Stock -->
-        <p>
-            <label for="{{ form.stock.id_for_label }}">{{ form.stock.label }}:</label>
-            {{ form.stock }}
-        </p>
-
-        {% if formset %}
-        {{ formset.management_form }}
-        {% endif %}
-
-        <div class="formset-container">
-            {% for form in formset %}
-                <div class="formset-form">
-                    {{ form.as_p }}
-                </div>
+            {% for error in form.nombre.errors %}
+                <span class="error">{{ error }}</span>
             {% endfor %}
         </div>
-        
-        <button type="submit">Crear Producto</button>
-
-        {% block extra %}{% endblock %}
-    </form>
-    
-    <div class="back-link">
-        <button type="button" onclick="window.history.back();">Volver</button>
+<!-- Marca con botón -->
+<div class="field-with-button">
+    <div>
+        <label for="{{ form.marca.id_for_label }}">{{ form.marca.label }}</label>
+        {{ form.marca }}
     </div>
+    <button type="button" class="create-button" onclick="abrirModal('modalMarca')">+ Nueva</button>
 </div>
+
+<!-- Categoría con botón -->
+<div class="field-with-button">
+    <div>
+        <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+        {{ form.categoria }}
+    </div>
+    <button type="button" class="create-button" onclick="abrirModal('modalCategoria')">+ Nueva</button>
+</div>
+
+<!-- Proveedor con botón -->
+<div class="field-with-button">
+    <div>
+        <label for="{{ form.proveedor.id_for_label }}">{{ form.proveedor.label }}</label>
+        {{ form.proveedor }}
+    </div>
+    <button type="button" class="create-button" onclick="abrirModal('modalProveedor')">+ Nuevo</button>
+</div>
+
+<!-- Unidad con botón -->
+<div class="field-with-button">
+    <div>
+        <label for="{{ form.unidad.id_for_label }}">{{ form.unidad.label }}</label>
+        {{ form.unidad }}
+    </div>
+    <button type="button" class="create-button" onclick="abrirModal('modalUnidad')">+ Nueva</button>
+</div>
+
+
+        <!-- Tipo de uso -->
+        <div class="mb-3">
+            <label for="{{ form.tipo_uso.id_for_label }}">{{ form.tipo_uso.label }}</label>
+            {{ form.tipo_uso }}
+        </div>
+
+
+        <!-- Stock -->
+        <div class="mb-3">
+            <label for="{{ form.stock.id_for_label }}">{{ form.stock.label }}</label>
+            {{ form.stock }}
+        </div>
+
+        <button type="submit" class="btn-save">Crear Producto</button>
+    </form>
+</div>
+
+<div class="back-link">
+    <button type="button" onclick="window.history.back();">Volver</button>
+</div>
+
 
 <!-- ===== MODALES ===== -->
+
+<!-- Modal Marca -->
 <div id="modalMarca" class="simple-modal">
     <div class="modal-content">
-        <h3>Crear Nueva Marca</h3>
-        <label for="nombreMarca">Nombre: *</label>
-        <input type="text" id="nombreMarca" placeholder="Ej: Nike, Adidas">
-        
-        <label for="paisOrigenMarca">País de Origen: *</label>
-        <input type="text" id="paisOrigenMarca" placeholder="Ej: Estados Unidos, Colombia">
-        
-        <label for="descripcionMarca">Descripción:</label>
-        <textarea id="descripcionMarca" rows="3" placeholder="Descripción opcional de la marca"></textarea>
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalMarca')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarMarca(this)">Guardar</button>
-        </div>
+        <h3>Nueva Marca</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ marca_form.as_p }}
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalMarca')">Cancelar</button>
+                <button type="submit" name="crear_marca" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
+<!-- Modal Categoría -->
 <div id="modalCategoria" class="simple-modal">
     <div class="modal-content">
-        <h3>Crear Nueva Categoría</h3>
-        <label for="nombreCategoria">Nombre: *</label>
-        <input type="text" id="nombreCategoria" placeholder="Ej: Bebidas, Carnes, Condimentos">
-        
-        <label for="descripcionCategoria">Descripción:</label>
-        <textarea id="descripcionCategoria" rows="3" placeholder="Descripción opcional de la categoría"></textarea>
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalCategoria')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarCategoria(this)">Guardar</button>
-        </div>
+        <h3>Nueva Categoría</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ categoria_form.as_p }}
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalCategoria')">Cancelar</button>
+                <button type="submit" name="crear_categoria" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
+<!-- Modal Proveedor -->
 <div id="modalProveedor" class="simple-modal">
     <div class="modal-content">
-        <h3>Crear Nuevo Proveedor</h3>
-        <label for="nombreProveedor">Nombre: *</label>
-        <input type="text" id="nombreProveedor" placeholder="Nombre del proveedor">
-        
-        <label for="nitProveedor">NIT: *</label>
-        <input type="text" id="nitProveedor" placeholder="123456789-0">
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalProveedor')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarProveedor(this)">Guardar</button>
-        </div>
+        <h3>Nuevo Proveedor</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ proveedor_form.as_p }}
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalProveedor')">Cancelar</button>
+                <button type="submit" name="crear_proveedor" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
+<!-- Modal Unidad -->
 <div id="modalUnidad" class="simple-modal">
     <div class="modal-content">
-        <h3>Crear Nueva Unidad</h3>
-        <label for="nombreUnidad">Nombre: *</label>
-        <input type="text" id="nombreUnidad" placeholder="Ej: Kilogramos, Litros, Unidades">
-        
-        <label for="descripcionUnidad">Descripción:</label>
-        <input type="text" id="descripcionUnidad" placeholder="Descripción opcional">
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalUnidad')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarUnidad(this)">Guardar</button>
-        </div>
+        <h3>Nueva Unidad</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ unidad_form.as_p }}
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalUnidad')">Cancelar</button>
+                <button type="submit" name="crear_unidad" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- ===== JAVASCRIPT ===== -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+<!-- ===== JS PARA MODALES Y MENSAJES ===== -->
 <script>
-$(document).ready(function() {
-    // Inicializar Select2
-    $('#id_marca, #id_categoria, #id_proveedor, #id_unidad').select2({
-        width: '100%',
-        placeholder: 'Seleccionar...',
-        allowClear: false,
-        language: {
-            noResults: () => "No se encontraron resultados",
-            searching: () => "Buscando..."
-        }
-    });
-    
-    // Cerrar modal al hacer clic fuera
-    $('.simple-modal').on('click', function(e) {
-        if (e.target === this) cerrarModalConAnimacion(this.id);
-    });x``
-    
-    // Cerrar modal con ESC
-    $(document).keydown(function(e) {
-        if (e.keyCode === 27) {
-            $('.simple-modal:visible').each(function() {
-                cerrarModalConAnimacion(this.id);
-            });
-        }
-    });
-});
-
-// Obtener CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-const csrftoken = getCookie('csrftoken');
-
-// Funciones de modal
 function abrirModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.style.display = 'block';
-    modal.offsetHeight; // reflow
+    modal.offsetHeight;
     modal.style.opacity = '1';
 }
 
 function cerrarModal(modalId) {
-    cerrarModalConAnimacion(modalId);
-}
-
-function cerrarModalConAnimacion(modalId) {
     const modal = document.getElementById(modalId);
     modal.style.opacity = '0';
-    setTimeout(() => {
-        modal.style.display = 'none';
-        const inputs = modal.querySelectorAll('input, textarea');
-        inputs.forEach(input => input.value = '');
-    }, 300);
+    setTimeout(() => modal.style.display = 'none', 300);
 }
 
-// Mensajes
-function mostrarMensaje(tipo, mensaje) {
-    const messageHtml = `<div class="message ${tipo}">${mensaje}</div>`;
-    $('#messages-container').html(messageHtml);
-    setTimeout(() => {
-        $('#messages-container .message').fadeOut(500, function() {
-            $(this).remove();
+// Cerrar modal al hacer clic fuera
+document.querySelectorAll('.simple-modal').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) cerrarModal(this.id);
+    });
+});
+
+// Cerrar modal con ESC
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 27) {
+        document.querySelectorAll('.simple-modal').forEach(m => {
+            if (m.style.display === 'block') cerrarModal(m.id);
         });
-    }, 500);
-}
-
-// Actualizar Select2
-function actualizarSelect(selectId, nuevoId, nuevoTexto) {
-    const $select = $('#' + selectId);
-    const newOption = new Option(nuevoTexto, nuevoId, true, true);
-    $select.append(newOption).trigger('change');
-}
-
-
-// Botón loading
-function toggleBoton(btn, estado, textoLoading = 'Guardando...') {
-    const $btn = $(btn);
-    if (estado === 'loading') {
-        $btn.prop('disabled', true);
-        if (!$btn.data('original-text')) {
-            $btn.data('original-text', $btn.text());
-        }
-        $btn.text(textoLoading);
-    } else {
-        $btn.prop('disabled', false);
-        const originalText = $btn.data('original-text');
-        if (originalText) {
-            $btn.text(originalText);
-        }
     }
-}
+});
 
-// ===== AJAX =====
-function guardarMarca(btn) {
-    const nombre = $('#nombreMarca').val().trim();
-    const paisOrigen = $('#paisOrigenMarca').val().trim();
-    const descripcion = $('#descripcionMarca').val().trim();
-    
-    if (!nombre || !paisOrigen) {
-        mostrarMensaje('error', 'Complete los campos requeridos (Nombre y País de Origen)');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_marca_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, pais_origen: paisOrigen, descripcion }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_marca', data.id, data.text);
-                cerrarModal('modalMarca');
-                mostrarMensaje('success', `Marca "${data.text}" creada exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
+// Auto-ocultar mensajes
+setTimeout(() => {
+    document.querySelectorAll('#messages-container .message').forEach(msg => {
+        msg.style.transition = 'opacity 0.5s';
+        msg.style.opacity = '0';
+        setTimeout(() => msg.remove(), 500);
     });
-}
-
-function guardarCategoria(btn) {
-    const nombre = $('#nombreCategoria').val().trim();
-    const descripcion = $('#descripcionCategoria').val().trim();
-    
-    if (!nombre) {
-        mostrarMensaje('error', 'El nombre de la categoría es requerido');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_categoria_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, descripcion }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_categoria', data.id, data.text);
-                cerrarModal('modalCategoria');
-                mostrarMensaje('success', `Categoría "${data.text}" creada exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
-    });
-}
-
-function guardarProveedor(btn) {
-    const nombre = $('#nombreProveedor').val().trim();
-    const nit = $('#nitProveedor').val().trim();
-    
-    if (!nombre || !nit) {
-        mostrarMensaje('error', 'Complete todos los campos requeridos (Nombre y NIT)');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_proveedor_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, nit }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_proveedor', data.id, data.text);
-                cerrarModal('modalProveedor');
-                mostrarMensaje('success', `Proveedor "${data.text}" creado exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
-    });
-}
-
-function guardarUnidad(btn) {
-    const nombre = $('#nombreUnidad').val().trim();
-    const descripcion = $('#descripcionUnidad').val().trim();
-    
-    if (!nombre) {
-        mostrarMensaje('error', 'El nombre de la unidad es requerido');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_unidad_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, descripcion }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_unidad', data.id, data.text);
-                cerrarModal('modalUnidad');
-                mostrarMensaje('success', `Unidad "${data.text}" creada exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
-    });
-}
+}, 5000);
 </script>
 
 {% endblock %}

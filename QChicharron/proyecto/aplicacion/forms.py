@@ -94,41 +94,22 @@ class Select2WithCreateWidget(ModelSelect2Widget):
             attrs['data-create-url'] = self.create_url
             attrs['data-create-text'] = self.create_text
         return attrs
-
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = ['nombre', 'marca', 'categoria', 'proveedor', 'tipo_uso', 'unidad', 'stock']
         widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'marca': forms.Select(attrs={'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'proveedor': forms.Select(attrs={'class': 'form-control'}),
+            'tipo_uso': forms.Select(attrs={'class': 'form-control'}),
+            'unidad': forms.Select(attrs={'class': 'form-control'}),
             'stock': forms.NumberInput(attrs={
+                'class': 'form-control',
                 'min': '0',
                 'required': True,
             }),
-            # Aquí van los Select2 con creación
-            'marca': Select2WithCreateWidget(
-                model=Marca,
-                search_fields=['nombre__icontains'],
-                create_url='crear_marca_ajax',
-                create_text='+ Crear nueva marca'
-            ),
-            'categoria': Select2WithCreateWidget(
-                model=Categoria,
-                search_fields=['nombre__icontains'],
-                create_url='crear_categoria_ajax',
-                create_text='+ Crear nueva categoría'
-            ),
-            'proveedor': Select2WithCreateWidget(
-                model=Proveedor,
-                search_fields=['nombre__icontains'],
-                create_url='crear_proveedor_ajax',
-                create_text='+ Crear nuevo proveedor'
-            ),
-            'unidad': Select2WithCreateWidget(
-                model=Unidad,
-                search_fields=['nombre__icontains'],
-                create_url='crear_unidad_ajax',
-                create_text='+ Crear nueva unidad'
-            ),
         }
 
     def clean_stock(self):
@@ -152,13 +133,35 @@ class ProductoForm(forms.ModelForm):
         self.fields['unidad'].empty_label = "Seleccione una unidad"
 
 
-class ProductoCreateView(CreateView):
-    model = Producto
-    form_class = ProductoForm
-    template_name = 'forms/formulario_crear.html'
-    success_url = reverse_lazy('apl:producto_list')
+# Formularios para los modales
+class MarcaModalForm(forms.ModelForm):
+    class Meta:
+        model = Marca
+        fields = ['nombre', 'pais_origen', 'descripcion']
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 3}),
+        }
 
 
+class CategoriaModalForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre', 'descripcion']
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 3}),
+        }
+
+
+class ProveedorModalForm(forms.ModelForm):
+    class Meta:
+        model = Proveedor
+        fields = ['nombre', 'nit']
+
+
+class UnidadModalForm(forms.ModelForm):
+    class Meta:
+        model = Unidad
+        fields = ['nombre', 'descripcion']
 
 # Administrador
 class AdministradorForm(forms.ModelForm):
