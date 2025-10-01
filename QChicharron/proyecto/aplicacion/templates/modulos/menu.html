@@ -65,8 +65,7 @@
                                 <a href="{% url 'apl:menu_update' menu.id %}" class="btn btn-warning btn-sm d-inline">
                                     <i class="bi bi-pen-fill"></i>
                                 </a>
-                                <a href="{% url 'apl:menu_delete' menu.id %}" class="btn btn-danger btn-sm d-inline">
-                                    <i class="bi bi-trash3-fill"></i>
+                                <button type="button" onclick="eliminarProducto({{ p.pk }})" class="btn btn-danger">
                                 </a>
                             </td>
                         </tr>

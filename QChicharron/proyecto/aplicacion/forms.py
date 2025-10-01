@@ -264,3 +264,10 @@ class InformeForm(forms.Form):
 
         if fecha_inicio and fecha_fin and fecha_inicio > fecha_fin:
             raise forms.ValidationError("La fecha de inicio no puede ser mayor que la fecha fin.")
+        
+        
+class MenuForm(forms.ModelForm):
+    class Meta:
+        model = Menu
+        fields ='__all__' 
+        

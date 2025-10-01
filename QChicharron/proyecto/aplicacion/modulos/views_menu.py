@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from aplicacion.models import *
 from aplicacion.modulos.views_menu import *
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView   
-
+from aplicacion.forms import MenuForm
 def listar_menu(request):
     data = {
         "menus": "menus",
@@ -26,7 +26,7 @@ class MenuListView(ListView):
 class MenuCreateView(CreateView):
     model = Menu
     template_name = 'forms/formulario_crear.html'
-    fields = ['nombre', 'descripcion', 'precio']
+    form_class= MenuForm
     
     def get_success_url(self):
         return reverse_lazy('apl:menu_list')
@@ -41,7 +41,7 @@ class MenuCreateView(CreateView):
 class MenuUpdateView(UpdateView):
     model = Menu
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['nombre', 'descripcion', 'precio']
+    form_class = MenuForm
     
     def get_success_url(self):
         return reverse_lazy('apl:menu_list')
