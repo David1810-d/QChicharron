@@ -5,6 +5,19 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django_select2.forms import *
 from django.core.exceptions import ValidationError
+from aplicacion.models import (
+    Plato,
+    PlatoProducto,
+    Menu,
+    Pedido,
+    PedidoDetalle,
+    Producto,
+    Marca,
+    Categoria,
+    Proveedor,
+    Unidad,
+)
+
 
 
 class PlatoForm(forms.ModelForm):
