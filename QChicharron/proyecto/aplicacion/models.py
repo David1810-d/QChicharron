@@ -229,8 +229,8 @@ class MenuProducto(models.Model):
 
 
 # REEMPLAZAR tu modelo Menu actual con este:
+# ---------------------------- Menú  -----------------------------
 class Menu(models.Model):
-
     """
     Modelo que puede referenciar tanto Productos como Platos
     usando una relación polimórfica
@@ -239,9 +239,9 @@ class Menu(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     precio_menu = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     disponible = models.BooleanField(default=True)
-    fecha_creacion = models.DateTimeField(default=timezone.now)  # ← CAMBIADO: usar default en lugar de auto_now_add
+    fecha_creacion = models.DateTimeField(default=timezone.now)
     
-    # Campos para la relación polimórfica - TEMPORALMENTE con null=True
+    # Campos para la relación polimórfica
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
     object_id = models.PositiveIntegerField(null=True, blank=True)
     item = GenericForeignKey('content_type', 'object_id')
@@ -264,24 +264,13 @@ class Menu(models.Model):
     # Mantener campo precio original para compatibilidad temporal
     precio = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     
-           # Dentro de la clase Menu, agregar:
+    # Relación many-to-many con productos (SOLO UNA VEZ)
     productos = models.ManyToManyField(
         'Producto',
         through='MenuProducto',
-        related_name='menus',
-        blank=True,
-        verbose_name='Productos'
+        related_name='menus_disponibles',
+        blank=True
     )
-    def get_productos_list(self):
-        """Obtiene la lista de productos con sus cantidades"""
-        return self.menu_productos.select_related('producto').all()
-    
-    def calcular_costo_productos(self):
-        """Calcula el costo total de los productos en el menú"""
-        total = Decimal('0.00')
-        for mp in self.menu_productos.all():
-            total += mp.get_subtotal()
-        return total
     
     class Meta:
         verbose_name = "Ítem del Menú"
@@ -289,9 +278,7 @@ class Menu(models.Model):
         ordering = ['categoria_menu', 'nombre']
     
     def get_precio_final(self):
-        """
-        Obtiene el precio final considerando descuentos
-        """
+        """Obtiene el precio final considerando descuentos"""
         if self.precio_menu:
             precio_base = self.precio_menu
         elif self.precio:
@@ -305,35 +292,28 @@ class Menu(models.Model):
         return precio_base - descuento_aplicado
     
     def get_tipo_item(self):
-        """
-        Retorna el tipo de ítem (producto o plato)
-        """
+        """Retorna el tipo de ítem (producto o plato)"""
         if self.content_type:
             return self.content_type.model
         return "menu_simple"
     
     def get_stock_disponible(self):
-        """
-        Si el ítem es un producto, retorna el stock disponible
-        """
+        """Si el ítem es un producto, retorna el stock disponible"""
         if self.get_tipo_item() == 'producto' and self.item:
             return self.item.stock
         return None
     
     def puede_servirse(self):
-        """
-        Verifica si el ítem del menú puede servirse
-        """
+        """Verifica si el ítem del menú puede servirse"""
         if not self.disponible:
             return False
         
-        if not self.item:  # Menu simple sin item asociado
+        if not self.item:
             return True
         
         if self.get_tipo_item() == 'producto':
             return self.item.stock > 0
         
-        # Para platos, verificar si tiene productos suficientes
         if self.get_tipo_item() == 'plato':
             for plato_producto in self.item.platoproducto_set.all():
                 if plato_producto.producto.stock < plato_producto.cantidad:
@@ -348,9 +328,27 @@ class Menu(models.Model):
             return f"{self.nombre} ({tipo}) - ${precio}"
         else:
             return f"{self.nombre} - ${precio}"
-     
-    
 
+
+
+# ---------------------------- Menú y Plato -----------------------------
+class Plato(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True, blank=True)
+
+    productos = models.ManyToManyField(
+        Producto,
+        through="PlatoProducto",
+        related_name="platos"
+    )
+
+    def __str__(self):
+        return self.nombre
+
+# ELIMINAR ESTO DE MODELS.PY:
+# PlatoProductoFormSet = inlineformset_factory(...)
 
 
 
