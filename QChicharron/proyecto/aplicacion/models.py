@@ -386,7 +386,7 @@ class PedidoProducto(models.Model):
 class PedidoMenu(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
     menu = models.ForeignKey(
-        Menu, 
+        "Menu", 
         on_delete=models.CASCADE,
         related_name="pedidos_menu"
     )
@@ -397,7 +397,7 @@ class PedidoMenu(models.Model):
 
 
 class PlatoProducto(models.Model):
-    plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
+    plato = models.ForeignKey("Plato", on_delete=models.CASCADE)
     producto = models.ForeignKey(
         Producto, 
         on_delete=models.CASCADE,

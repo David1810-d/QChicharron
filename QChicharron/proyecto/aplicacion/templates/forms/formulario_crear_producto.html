@@ -92,7 +92,7 @@
     </div>
 </div>
 
-<!-- ===== MODALES ELEGANTES ===== -->
+<!-- ===== MODALES ===== -->
 <div id="modalMarca" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nueva Marca</h3>
@@ -107,7 +107,7 @@
         
         <div class="modal-buttons">
             <button type="button" class="btn-cancel" onclick="cerrarModal('modalMarca')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarMarca()">Guardar</button>
+            <button type="button" class="btn-save" onclick="guardarMarca(this)">Guardar</button>
         </div>
     </div>
 </div>
@@ -123,7 +123,7 @@
         
         <div class="modal-buttons">
             <button type="button" class="btn-cancel" onclick="cerrarModal('modalCategoria')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarCategoria()">Guardar</button>
+            <button type="button" class="btn-save" onclick="guardarCategoria(this)">Guardar</button>
         </div>
     </div>
 </div>
@@ -139,7 +139,7 @@
         
         <div class="modal-buttons">
             <button type="button" class="btn-cancel" onclick="cerrarModal('modalProveedor')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarProveedor()">Guardar</button>
+            <button type="button" class="btn-save" onclick="guardarProveedor(this)">Guardar</button>
         </div>
     </div>
 </div>
@@ -155,7 +155,7 @@
         
         <div class="modal-buttons">
             <button type="button" class="btn-cancel" onclick="cerrarModal('modalUnidad')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarUnidad()">Guardar</button>
+            <button type="button" class="btn-save" onclick="guardarUnidad(this)">Guardar</button>
         </div>
     </div>
 </div>
@@ -166,31 +166,25 @@
 
 <script>
 $(document).ready(function() {
-    // Inicializar Select2 con configuración personalizada
+    // Inicializar Select2
     $('#id_marca, #id_categoria, #id_proveedor, #id_unidad').select2({
         width: '100%',
         placeholder: 'Seleccionar...',
         allowClear: false,
         language: {
-            noResults: function() {
-                return "No se encontraron resultados";
-            },
-            searching: function() {
-                return "Buscando...";
-            }
+            noResults: () => "No se encontraron resultados",
+            searching: () => "Buscando..."
         }
     });
     
     // Cerrar modal al hacer clic fuera
     $('.simple-modal').on('click', function(e) {
-        if (e.target === this) {
-            cerrarModalConAnimacion(this.id);
-        }
-    });
+        if (e.target === this) cerrarModalConAnimacion(this.id);
+    });x``
     
     // Cerrar modal con ESC
     $(document).keydown(function(e) {
-        if (e.keyCode === 27) { // ESC key
+        if (e.keyCode === 27) {
             $('.simple-modal:visible').each(function() {
                 cerrarModalConAnimacion(this.id);
             });
@@ -216,12 +210,11 @@ function getCookie(name) {
 
 const csrftoken = getCookie('csrftoken');
 
-// Funciones de modal con animaciones
+// Funciones de modal
 function abrirModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.style.display = 'block';
-    // Forzar reflow para que la animación funcione
-    modal.offsetHeight;
+    modal.offsetHeight; // reflow
     modal.style.opacity = '1';
 }
 
@@ -234,36 +227,32 @@ function cerrarModalConAnimacion(modalId) {
     modal.style.opacity = '0';
     setTimeout(() => {
         modal.style.display = 'none';
-        // Limpiar campos
         const inputs = modal.querySelectorAll('input, textarea');
         inputs.forEach(input => input.value = '');
     }, 300);
 }
 
-// Función para mostrar mensajes
+// Mensajes
 function mostrarMensaje(tipo, mensaje) {
     const messageHtml = `<div class="message ${tipo}">${mensaje}</div>`;
     $('#messages-container').html(messageHtml);
-    
-    // Auto-ocultar después de 5 segundos
-    setTimeout(function() {
+    setTimeout(() => {
         $('#messages-container .message').fadeOut(500, function() {
             $(this).remove();
         });
-    }, 5000);
+    }, 500);
 }
 
-// Función para actualizar select con Select2
+// Actualizar Select2
 function actualizarSelect(selectId, nuevoId, nuevoTexto) {
     const $select = $('#' + selectId);
-    // Crear nueva opción
     const newOption = new Option(nuevoTexto, nuevoId, true, true);
     $select.append(newOption).trigger('change');
 }
 
-// Función para deshabilitar botón durante la carga
-function toggleBoton(selector, estado, textoLoading = 'Guardando...') {
-    const $btn = $(selector);
+// Botón loading
+function toggleBoton(btn, estado, textoLoading = 'Guardando...') {
+    const $btn = $(btn);
     if (estado === 'loading') {
         $btn.prop('disabled', true).data('original-text', $btn.text()).text(textoLoading);
     } else {
@@ -271,8 +260,8 @@ function toggleBoton(selector, estado, textoLoading = 'Guardando...') {
     }
 }
 
-// ===== FUNCIONES AJAX =====
-function guardarMarca() {
+// ===== AJAX =====
+function guardarMarca(btn) {
     const nombre = $('#nombreMarca').val().trim();
     const paisOrigen = $('#paisOrigenMarca').val().trim();
     const descripcion = $('#descripcionMarca').val().trim();
@@ -282,40 +271,26 @@ function guardarMarca() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton(btn, 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_marca_ajax" %}',
         type: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        data: JSON.stringify({
-            nombre: nombre,
-            pais_origen: paisOrigen,
-            descripcion: descripcion
-        }),
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        data: JSON.stringify({ nombre, pais_origen: paisOrigen, descripcion }),
         success: function(data) {
             if (data.success) {
                 actualizarSelect('id_marca', data.id, data.text);
                 cerrarModal('modalMarca');
                 mostrarMensaje('success', `Marca "${data.text}" creada exitosamente`);
-            } else {
-                mostrarMensaje('error', data.error);
-            }
+            } else mostrarMensaje('error', data.error);
         },
-        error: function(xhr, status, error) {
-            console.error('Error AJAX:', error);
-            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
-        },
-        complete: function() {
-            toggleBoton('.btn-save', 'normal');
-        }
+        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
+        complete: () => toggleBoton(btn, 'normal')
     });
 }
 
-function guardarCategoria() {
+function guardarCategoria(btn) {
     const nombre = $('#nombreCategoria').val().trim();
     const descripcion = $('#descripcionCategoria').val().trim();
     
@@ -324,38 +299,26 @@ function guardarCategoria() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton(btn, 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_categoria_ajax" %}',
         type: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        data: JSON.stringify({
-            nombre: nombre,
-            descripcion: descripcion
-        }),
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        data: JSON.stringify({ nombre, descripcion }),
         success: function(data) {
             if (data.success) {
                 actualizarSelect('id_categoria', data.id, data.text);
                 cerrarModal('modalCategoria');
                 mostrarMensaje('success', `Categoría "${data.text}" creada exitosamente`);
-            } else {
-                mostrarMensaje('error', data.error);
-            }
+            } else mostrarMensaje('error', data.error);
         },
-        error: function(xhr, status, error) {
-            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
-        },
-        complete: function() {
-            toggleBoton('.btn-save', 'normal');
-        }
+        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
+        complete: () => toggleBoton(btn, 'normal')
     });
 }
 
-function guardarProveedor() {
+function guardarProveedor(btn) {
     const nombre = $('#nombreProveedor').val().trim();
     const nit = $('#nitProveedor').val().trim();
     
@@ -364,38 +327,26 @@ function guardarProveedor() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton(btn, 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_proveedor_ajax" %}',
         type: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        data: JSON.stringify({
-            nombre: nombre,
-            nit: nit
-        }),
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        data: JSON.stringify({ nombre, nit }),
         success: function(data) {
             if (data.success) {
                 actualizarSelect('id_proveedor', data.id, data.text);
                 cerrarModal('modalProveedor');
                 mostrarMensaje('success', `Proveedor "${data.text}" creado exitosamente`);
-            } else {
-                mostrarMensaje('error', data.error);
-            }
+            } else mostrarMensaje('error', data.error);
         },
-        error: function(xhr, status, error) {
-            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
-        },
-        complete: function() {
-            toggleBoton('.btn-save', 'normal');
-        }
+        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
+        complete: () => toggleBoton(btn, 'normal')
     });
 }
 
-function guardarUnidad() {
+function guardarUnidad(btn) {
     const nombre = $('#nombreUnidad').val().trim();
     const descripcion = $('#descripcionUnidad').val().trim();
     
@@ -404,37 +355,24 @@ function guardarUnidad() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton(btn, 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_unidad_ajax" %}',
         type: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken
-        },
-        data: JSON.stringify({
-            nombre: nombre,
-            descripcion: descripcion
-        }),
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        data: JSON.stringify({ nombre, descripcion }),
         success: function(data) {
             if (data.success) {
                 actualizarSelect('id_unidad', data.id, data.text);
                 cerrarModal('modalUnidad');
                 mostrarMensaje('success', `Unidad "${data.text}" creada exitosamente`);
-            } else {
-                mostrarMensaje('error', data.error);
-            }
+            } else mostrarMensaje('error', data.error);
         },
-        error: function(xhr, status, error) {
-            mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
-        },
-        complete: function() {
-            toggleBoton('.btn-save', 'normal');
-        }
+        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
+        complete: () => toggleBoton(btn, 'normal')
     });
 }
 </script>
-
 
 {% endblock %}
