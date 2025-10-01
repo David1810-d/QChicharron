@@ -91,4 +91,30 @@
         </div>
     </div>
 </div>
+<script>
+    // Mostrar/Ocultar campos según el tipo de ítem
+    function toggleTipoItem() {
+        const tipoItem = document.getElementById("tipo_item").value;
+
+        const productoField = document.getElementById("producto_field");
+        const platoField = document.getElementById("plato_field");
+
+        if (tipoItem === "producto") {
+            productoField.style.display = "block";
+            platoField.style.display = "none";
+        } else if (tipoItem === "plato") {
+            productoField.style.display = "none";
+            platoField.style.display = "block";
+        } else {
+            productoField.style.display = "none";
+            platoField.style.display = "none";
+        }
+    }
+
+    // Ejecutar al cargar la página
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleTipoItem();
+    });
+</script>
+
 {% endblock %}

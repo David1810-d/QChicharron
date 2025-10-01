@@ -172,8 +172,65 @@ class Pedido(models.Model):
         return f"Pedido {self.id} - Mesa {self.mesa.id}"
 
 # ---------------------------- Menú  -----------------------------
+from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+
+
+class MenuProducto(models.Model):
+    """
+    Tabla intermedia para la relación ManyToMany entre Menu y Producto
+    Permite agregar múltiples productos a un menú con sus cantidades
+    """
+    menu = models.ForeignKey(
+        'Menu', 
+        on_delete=models.CASCADE,
+        related_name='menu_productos',
+        verbose_name='Menú'
+    )
+    producto = models.ForeignKey(
+        'Producto',
+        on_delete=models.CASCADE,
+        related_name='productos_menu',
+        verbose_name='Producto'
+    )
+    cantidad = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=1,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name='Cantidad',
+        help_text='Cantidad del producto en el menú'
+    )
+    orden = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Orden',
+        help_text='Orden de presentación en el menú'
+    )
+    fecha_agregado = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Fecha Agregado'
+    )
+    
+    class Meta:
+        verbose_name = 'Producto del Menú'
+        verbose_name_plural = 'Productos del Menú'
+        ordering = ['orden', 'fecha_agregado']
+        unique_together = ['menu', 'producto']  # No repetir el mismo producto en un menú
+    
+    def __str__(self):
+        return f"{self.menu.nombre} - {self.producto.nombre} ({self.cantidad})"
+    
+    def get_subtotal(self):
+        """Calcula el subtotal basado en el precio del producto"""
+        if hasattr(self.producto, 'precio') and self.producto.precio:
+            return self.cantidad * self.producto.precio
+        return Decimal('0.00')
+
+
 # REEMPLAZAR tu modelo Menu actual con este:
 class Menu(models.Model):
+
     """
     Modelo que puede referenciar tanto Productos como Platos
     usando una relación polimórfica
@@ -206,6 +263,25 @@ class Menu(models.Model):
     
     # Mantener campo precio original para compatibilidad temporal
     precio = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+           # Dentro de la clase Menu, agregar:
+    productos = models.ManyToManyField(
+        'Producto',
+        through='MenuProducto',
+        related_name='menus',
+        blank=True,
+        verbose_name='Productos'
+    )
+    def get_productos_list(self):
+        """Obtiene la lista de productos con sus cantidades"""
+        return self.menu_productos.select_related('producto').all()
+    
+    def calcular_costo_productos(self):
+        """Calcula el costo total de los productos en el menú"""
+        total = Decimal('0.00')
+        for mp in self.menu_productos.all():
+            total += mp.get_subtotal()
+        return total
     
     class Meta:
         verbose_name = "Ítem del Menú"
@@ -272,7 +348,8 @@ class Menu(models.Model):
             return f"{self.nombre} ({tipo}) - ${precio}"
         else:
             return f"{self.nombre} - ${precio}"
-
+     
+    
 
 
 
@@ -292,6 +369,7 @@ class Plato(models.Model):
 
     def __str__(self):
         return self.nombre
+
 
 # ---------------------------- Relaciones: PedidoProducto, PedidoMenu, PlatoProducto -----------------------------
 
@@ -405,3 +483,4 @@ class Informe(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.tipo}) - {self.fecha_inicio} a {self.fecha_fin}"   
+

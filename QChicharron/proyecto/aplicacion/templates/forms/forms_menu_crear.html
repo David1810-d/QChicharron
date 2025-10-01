@@ -1,0 +1,197 @@
+{% extends 'forms/formulario_crear.html' %}
+{% load static %}
+
+{% block extra_css %}
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<style>
+    .productos-section {
+        display: none;
+    }
+    .formset-row {
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+    }
+    .delete-row {
+        color: #dc3545;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="menuForm">
+                        {% csrf_token %}
+                        
+                        <!-- Mensajes de error generales -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Campo Tipo de Item -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.tipo_item.label }}</label>
+                                {{ form.tipo_item }}
+                                {% if form.tipo_item.errors %}
+                                <div class="text-danger">{{ form.tipo_item.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Campo Plato (solo visible cuando tipo_item = 'plato') -->
+                        <div class="row mb-3" id="plato-section">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.plato_id.label }}</label>
+                                {{ form.plato_id }}
+                                {% if form.plato_id.errors %}
+                                <div class="text-danger">{{ form.plato_id.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">Seleccione un plato existente</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección de Productos (solo visible cuando tipo_item = 'productos') -->
+                        <div id="productos-section" class="productos-section">
+                            <div class="card mb-3">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5>Productos del Menú</h5>
+                                </div>
+                                <div class="card-body">
+                                    {{ formset.management_form }}
+                                    
+                                    <!-- Errores del formset -->
+                                    {% if formset.non_form_errors %}
+                                    <div class="alert alert-danger">
+                                        {{ formset.non_form_errors }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div id="formset-container">
+                                        {% for form in formset %}
+                                        <div class="formset-row" data-form-index="{{ forloop.counter0 }}">
+                                            <div class="row">
+                                                <!-- Campos ocultos -->
+                                                {{ form.id }}
+                                                
+                                                <!-- Producto -->
+                                                <div class="col-md-5">
+                                                    <label class="form-label">{{ form.producto.label }}</label>
+                                                    {{ form.producto }}
+                                                    {% if form.producto.errors %}
+                                                    <div class="text-danger">{{ form.producto.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Cantidad -->
+                                                <div class="col-md-3">
+                                                    <label class="form-label">{{ form.cantidad.label }}</label>
+                                                    {{ form.cantidad }}
+                                                    {% if form.cantidad.errors %}
+                                                    <div class="text-danger">{{ form.cantidad.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Orden -->
+                                                <div class="col-md-2">
+                                                    <label class="form-label">{{ form.orden.label }}</label>
+                                                    {{ form.orden }}
+                                                    {% if form.orden.errors %}
+                                                    <div class="text-danger">{{ form.orden.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Botón Eliminar -->
+                                                <div class="col-md-2 d-flex align-items-end">
+                                                    <label class="form-label">&nbsp;</label>
+                                                    {% if form.instance.pk %}
+                                                        {{ form.DELETE }}
+                                                        <label for="{{ form.DELETE.id_for_label }}" class="btn btn-danger btn-sm w-100">
+                                                            <i class="fas fa-trash"></i> Eliminar
+                                                        </label>
+                                                    {% else %}
+                                                        <button type="button" class="btn btn-danger btn-sm w-100 delete-empty-form">
+                                                            <i class="fas fa-trash"></i> Eliminar
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-success mt-3" id="add-form">
+                                        <i class="fas fa-plus"></i> Agregar Producto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Datos del Menú -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h5>Información del Menú</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Nombre -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">{{ form.nombre.label }}</label>
+                                        {{ form.nombre }}
+                                        {% if form.nombre.errors %}
+                                        <div class="text-danger">{{ form.nombre.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Categoría -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">{{ form.categoria_menu.label }}</label>
+                                        {{ form.categoria_menu }}
+                                        {% if form.categoria_menu.errors %}
+                                        <div class="text-danger">{{ form.categoria_menu.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Descripción -->
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label fw-bold">{{ form.descripcion.label }}</label>
+                                        {{ form.descripcion }}
+                                        {% if form.descripcion.errors %}
+                                        <div class="text-danger">{{ form.descripcion.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Precio -->
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-bold">{{ form.precio_menu.label }}</label>
+                                        {{ form.precio_menu }}
+                                        {% if form.precio_menu.errors %}
+                                        <div class="text-danger">{{ form.precio_menu.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Descuento -->
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-bold">{{ form.descuento.label }}</label>
+                                        {{ form.descuento }}
+                                        {% if form.descuento.errors %}
+                                        <div class="text-danger">{{ form.descuento.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">{{ form.descuento.help_text }}</small>
+                                    </div>
+                                {% endblock content %}
+

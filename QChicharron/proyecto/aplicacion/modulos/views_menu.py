@@ -25,7 +25,7 @@ class MenuListView(ListView):
 
 class MenuCreateView(CreateView):
     model = Menu
-    template_name = 'forms/formulario_crear.html'
+    template_name = 'forms/forms_menu_crear.html'
     form_class= MenuForm
     
     def get_success_url(self):
