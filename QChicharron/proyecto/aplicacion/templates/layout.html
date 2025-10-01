@@ -65,6 +65,15 @@
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
+<!-- SweetAlert2 plantilla -->
+<script src="{% static 'lib/libp/sweetalert2/sweetalert2.all.min.js' %}"></script>
+
+<!-- SweetAlert2 script para eliminar -->
+<script src="{% static 'lib/js/sweetalert_delete.js' %}"></script>
+
+<!-- Validación de formularios -->
+<script src="{% static 'lib/js/form_validation.js' %}"></script>
+
 <script>
 $(document).ready(function() {
     // DataTables
@@ -96,5 +105,19 @@ $(document).ready(function() {
 
 {% block extra_js %}{% endblock %}
 
+{% if messages %}
+<script>
+    {% for message in messages %}
+        Swal.fire({
+            title: "{% if message.tags == 'success' %}Éxito{% elif message.tags == 'error' %}Error{% else %}Aviso{% endif %}",
+            text: "{{ message|escapejs }}",
+            icon: "{{ message.tags }}",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    {% endfor %}
+</script>
+{% endif %}
 </body>
 </html>
