@@ -253,21 +253,36 @@ function mostrarMensaje(tipo, mensaje) {
     }, 5000);
 }
 
-// Función para actualizar select con Select2
+// Función para actualizar un select con Select2 y agregar nuevo valor
 function actualizarSelect(selectId, nuevoId, nuevoTexto) {
     const $select = $('#' + selectId);
-    // Crear nueva opción
-    const newOption = new Option(nuevoTexto, nuevoId, true, true);
-    $select.append(newOption).trigger('change');
+
+    // Crear opción nueva (si no existe ya)
+    if ($select.find("option[value='" + nuevoId + "']").length === 0) {
+        const newOption = new Option(nuevoTexto, nuevoId, true, true);
+        $select.append(newOption);
+    }
+
+    // Seleccionar automáticamente el nuevo valor
+    $select.val(nuevoId).trigger('change');
 }
 
-// Función para deshabilitar botón durante la carga
-function toggleBoton(selector, estado, textoLoading = 'Guardando...') {
-    const $btn = $(selector);
+
+// Función para deshabilitar botón durante la carga - REUTILIZABLE
+function toggleBoton(modalId, estado, textoLoading = 'Guardando...') {
+    const $btn = $('#' + modalId + ' .btn-save');
     if (estado === 'loading') {
-        $btn.prop('disabled', true).data('original-text', $btn.text()).text(textoLoading);
+        $btn.prop('disabled', true);
+        if (!$btn.data('original-text')) {
+            $btn.data('original-text', $btn.text());
+        }
+        $btn.text(textoLoading);
     } else {
-        $btn.prop('disabled', false).text($btn.data('original-text') || 'Guardar');
+        $btn.prop('disabled', false);
+        const originalText = $btn.data('original-text');
+        if (originalText) {
+            $btn.text(originalText);
+        }
     }
 }
 
@@ -282,7 +297,7 @@ function guardarMarca() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton('modalMarca', 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_marca_ajax" %}',
@@ -310,7 +325,7 @@ function guardarMarca() {
             mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
         },
         complete: function() {
-            toggleBoton('.btn-save', 'normal');
+            toggleBoton('modalMarca', 'normal');
         }
     });
 }
@@ -324,7 +339,7 @@ function guardarCategoria() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton('modalCategoria', 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_categoria_ajax" %}',
@@ -350,7 +365,7 @@ function guardarCategoria() {
             mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
         },
         complete: function() {
-            toggleBoton('.btn-save', 'normal');
+            toggleBoton('modalCategoria', 'normal');
         }
     });
 }
@@ -364,7 +379,7 @@ function guardarProveedor() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton('modalProveedor', 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_proveedor_ajax" %}',
@@ -390,7 +405,7 @@ function guardarProveedor() {
             mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
         },
         complete: function() {
-            toggleBoton('.btn-save', 'normal');
+            toggleBoton('modalProveedor', 'normal');
         }
     });
 }
@@ -404,7 +419,7 @@ function guardarUnidad() {
         return;
     }
 
-    toggleBoton('.btn-save', 'loading');
+    toggleBoton('modalUnidad', 'loading');
 
     $.ajax({
         url: '{% url "apl:crear_unidad_ajax" %}',
@@ -430,7 +445,7 @@ function guardarUnidad() {
             mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.');
         },
         complete: function() {
-            toggleBoton('.btn-save', 'normal');
+            toggleBoton('modalUnidad', 'normal');
         }
     });
 }
