@@ -106,8 +106,7 @@ class Select2WithCreateWidget(ModelSelect2Widget):
             attrs['data-create-url'] = self.create_url
             attrs['data-create-text'] = self.create_text
         return attrs
-
-
+    #mis cambios de producto
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
@@ -210,7 +209,7 @@ class AdministradorForm(forms.ModelForm):
             raise forms.ValidationError("El nivel de prioridad no puede ser negativo.")
         
         return cleaned_data
-
+#hasta aqui van mis cambios 
 
 # Venta
 class VentaForm(forms.ModelForm):
