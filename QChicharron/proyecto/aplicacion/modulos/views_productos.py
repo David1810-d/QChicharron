@@ -1,3 +1,4 @@
+# coding: utf-8
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.http import JsonResponse
@@ -322,3 +323,4 @@ def crear_unidad_ajax(request):
             'success': False,
             'error': str(e)
         })
+        #--- IGNORE --

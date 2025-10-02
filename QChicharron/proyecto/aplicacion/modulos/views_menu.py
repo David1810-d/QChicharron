@@ -31,7 +31,7 @@ MenuProductoFormSet = inlineformset_factory(
 )
 
 class MenuListView(ListView):
-    model = "Menu"
+    model = Menu
     template_name = 'modulos/menu.html'
     context_object_name = 'menus'
     
@@ -78,7 +78,7 @@ class MenuCreateView(CreateView):
         return reverse_lazy('apl:menu_list')
 
 class MenuUpdateView(UpdateView):
-    model = "Menu"
+    model = Menu
     template_name = 'forms/formulario_actualizacion.html'
     form_class = MenuForm
     
@@ -116,7 +116,7 @@ class MenuUpdateView(UpdateView):
         return reverse_lazy('apl:menu_list')
 
 class MenuDeleteView(DeleteView):
-    model = "Menu"
+    model = Menu
     template_name = 'forms/confirmar_eliminacion.html'
     
     def get_success_url(self):
