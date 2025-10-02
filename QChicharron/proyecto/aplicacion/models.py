@@ -203,7 +203,7 @@ class Pedido(models.Model):
     def save(self, *args, **kwargs):
         self.calcular_subtotal()
         super().save(*args, **kwargs)
-
+#jiajia
 
 class PedidoDetalle(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
@@ -212,7 +212,7 @@ class PedidoDetalle(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.menu.nombre} (Pedido {self.pedido.id})"
-
+#ijaisjiadj
 # ---------------------------- Relaciones: PedidoProducto, PedidoMenu, PlatoProducto -----------------------------
 
 class PedidoProducto(models.Model):
@@ -325,3 +325,4 @@ class Informe(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.tipo}) - {self.fecha_inicio} a {self.fecha_fin}"   
+    #ijdasid

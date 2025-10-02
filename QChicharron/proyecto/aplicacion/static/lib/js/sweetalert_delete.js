@@ -1,3 +1,4 @@
+// sweetalert_delete.js
 $(function () {
     $(".btn-delete").on("click", function (e) {
         e.preventDefault();
@@ -42,3 +43,4 @@ $(function () {
         });
     });
 });
+// End of sweetalert_delete.js
