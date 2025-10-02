@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from aplicacion.models import *
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from aplicacion.forms import MenuForm, MenuProducto
-from django.forms import inlineformset_factory
+from aplicacion.forms import MenuForm, MenuProductoFormSet
 from django.db import transaction
+from django.contrib import messages
+from django.forms import inlineformset_factory
 from django import forms
 
 # Crear el formset para MenuProducto
@@ -49,12 +50,19 @@ class MenuCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear nuevo Menú'
+        context['title'] = 'Crear nuevo Menú'
         context['modulo'] = "menu"
         
         if self.request.POST:
-            context['formset'] = MenuProductoFormSet(self.request.POST)
+            context['formset'] = MenuProductoFormSet(
+                self.request.POST,
+                prefix='menu_productos'
+            )
         else:
-            context['formset'] = MenuProductoFormSet()
+            context['formset'] = MenuProductoFormSet(
+                prefix='menu_productos',
+                queryset=MenuProducto.objects.none()  # ← IMPORTANTE
+            )
         
         return context
     
@@ -64,19 +72,17 @@ class MenuCreateView(CreateView):
         
         with transaction.atomic():
             self.object = form.save()
+            tipo_item = form.cleaned_data.get('tipo_item')
             
-            if formset.is_valid():
-                formset.instance = self.object
-                formset.save()
-            else:
-                # Si el formset no es válido, retornar al formulario con errores
-                return self.form_invalid(form)
+            if tipo_item == 'productos':
+                if formset.is_valid():
+                    formset.instance = self.object
+                    formset.save()
         
         return redirect(self.get_success_url())
     
     def get_success_url(self):
         return reverse_lazy('apl:menu_list')
-
 class MenuUpdateView(UpdateView):
     model = Menu
     template_name = 'forms/formulario_actualizacion.html'

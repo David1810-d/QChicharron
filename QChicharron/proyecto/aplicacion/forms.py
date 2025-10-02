@@ -5,11 +5,13 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django_select2.forms import *
 from django.core.exceptions import ValidationError
-#jijija
+from django.contrib.contenttypes.models import ContentType
+
 from aplicacion.models import (
     Plato,
     PlatoProducto,
     Menu,
+    MenuProducto,
     Pedido,
     PedidoDetalle,
     Producto,
@@ -18,12 +20,12 @@ from aplicacion.models import (
     Proveedor,
     Unidad,
 )
-#jijija
+
+# ==================== PLATO ====================
 class PlatoForm(forms.ModelForm):
     class Meta:
         model = Plato
         fields = ['nombre', 'descripcion', 'precio']
-
 
 class PlatoProductoForm(forms.ModelForm):
     class Meta:
@@ -32,19 +34,6 @@ class PlatoProductoForm(forms.ModelForm):
         widgets = {
             'producto': Select2Widget(attrs={'class': 'select2'}),
         }
-        
-class PedidoForm(ModelForm):
-    class Meta:
-        model = Pedido
-        fields = ['mesa', 'estado']  # campos del pedido que quieres mostrar
-
-# Formset para agregar menús y cantidades al pedido
-PedidoDetalleFormSet = inlineformset_factory(
-    Pedido,
-    PedidoDetalle,
-    fields=['menu', 'cantidad'],
-    extra=1,       # cuántos campos extra mostrar al cargar
-)        
 
 PlatoProductoFormSet = inlineformset_factory(
     Plato,
@@ -53,9 +42,21 @@ PlatoProductoFormSet = inlineformset_factory(
     extra=1,
     can_delete=True
 )
-#sdfgdfhfg
 
-# Formularios para crear nuevas foreign keys
+# ==================== PEDIDO ====================
+class PedidoForm(ModelForm):
+    class Meta:
+        model = Pedido
+        fields = ['mesa', 'estado']
+
+PedidoDetalleFormSet = inlineformset_factory(
+    Pedido,
+    PedidoDetalle,
+    fields=['menu', 'cantidad'],
+    extra=1,
+)
+
+# ==================== FORMULARIOS PARA CREAR FOREIGN KEYS ====================
 class CrearMarcaForm(forms.ModelForm):
     class Meta:
         model = Marca
@@ -107,8 +108,7 @@ class Select2WithCreateWidget(ModelSelect2Widget):
             attrs['data-create-text'] = self.create_text
         return attrs
 
-#mis cambios de producto
-    #xd
+# ==================== PRODUCTO ====================
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
@@ -133,8 +133,8 @@ class ProductoForm(forms.ModelForm):
             raise forms.ValidationError("El stock no puede ser negativo.")
         return stock
 
-    def _init_(self, *args, **kwargs):
-        super()._init_(*args, **kwargs)
+    def __init__(self, *args, **kwargs):  # ← CORREGIDO: era _init_
+        super().__init__(*args, **kwargs)
         # Asegurar que los selects traen datos de la base
         self.fields['marca'].queryset = Marca.objects.all()
         self.fields['categoria'].queryset = Categoria.objects.all()
@@ -147,7 +147,6 @@ class ProductoForm(forms.ModelForm):
         self.fields['proveedor'].empty_label = "Seleccione un proveedor"
         self.fields['unidad'].empty_label = "Seleccione una unidad"
 
-
 # Formularios para los modales
 class MarcaModalForm(forms.ModelForm):
     class Meta:
@@ -157,7 +156,6 @@ class MarcaModalForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'rows': 3}),
         }
 
-
 class CategoriaModalForm(forms.ModelForm):
     class Meta:
         model = Categoria
@@ -166,19 +164,17 @@ class CategoriaModalForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'rows': 3}),
         }
 
-
 class ProveedorModalForm(forms.ModelForm):
     class Meta:
         model = Proveedor
         fields = ['nombre', 'nit']
-
 
 class UnidadModalForm(forms.ModelForm):
     class Meta:
         model = Unidad
         fields = ['nombre', 'descripcion']
 
-# Administrador
+# ==================== ADMINISTRADOR ====================
 class AdministradorForm(forms.ModelForm):
     class Meta:
         model = Administrador
@@ -190,11 +186,8 @@ class AdministradorForm(forms.ModelForm):
             }),
         }
 
-    # Validación a nivel de Django (backend)
     def clean_nivel_prioridad(self):
         nivel_prioridad = self.cleaned_data.get('nivel_prioridad')
-        print(f"DEBUG: nivel_prioridad = {nivel_prioridad}, tipo: {type(nivel_prioridad)}")  # Para debug
-        
         if nivel_prioridad is not None and nivel_prioridad < 0:
             raise forms.ValidationError("El nivel de prioridad no puede ser negativo.")
         return nivel_prioridad
@@ -202,15 +195,11 @@ class AdministradorForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         nivel_prioridad = cleaned_data.get('nivel_prioridad')
-        
-        # Validación adicional en clean general
         if nivel_prioridad is not None and nivel_prioridad < 0:
             raise forms.ValidationError("El nivel de prioridad no puede ser negativo.")
-        
         return cleaned_data
-#hasta aqui van mis cambios 
 
-# Venta
+# ==================== VENTA ====================
 class VentaForm(forms.ModelForm):
     class Meta:
         model = Venta
@@ -218,12 +207,11 @@ class VentaForm(forms.ModelForm):
         widgets = {
             'total': forms.NumberInput(attrs={
                 'min': '0',
-                'step': '0.01',  # para valores con decimales
+                'step': '0.01',
                 'required': True,
             }),
         }
 
-    # Validación a nivel de Django (backend)
     def clean_total(self):
         total = self.cleaned_data.get('total')
         if total is not None and total < 0:
@@ -233,20 +221,15 @@ class VentaForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         pedido = cleaned_data.get('pedido')
-
         if pedido is None:
             raise forms.ValidationError("Debes seleccionar un pedido.")
-
-        # Validación: un pedido no puede tener más de una venta pagada
         if Venta.objects.filter(pedido=pedido, estado="pagado").exists():
             raise forms.ValidationError(
                 f"El pedido {pedido.id} ya tiene una venta registrada como pagada."
             )
-
         return cleaned_data
 
-
-# Compra
+# ==================== COMPRA ====================
 class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
@@ -258,12 +241,11 @@ class CompraForm(forms.ModelForm):
             }),
             'precio': forms.NumberInput(attrs={
                 'min': '0',
-                'step': '0.01',  # para valores con decimales
+                'step': '0.01',
                 'required': True,
             }),
         }
 
-    # Validación a nivel de Django (backend)
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')
         if cantidad < 0:
@@ -276,7 +258,7 @@ class CompraForm(forms.ModelForm):
             raise forms.ValidationError("El precio no puede ser negativo.")
         return precio
 
-
+# ==================== INFORME ====================
 class InformeForm(forms.Form):
     fecha_inicio = forms.DateField(required=True)
     fecha_fin = forms.DateField(required=True)
@@ -285,13 +267,10 @@ class InformeForm(forms.Form):
         cleaned_data = super().clean()
         fecha_inicio = cleaned_data.get("fecha_inicio")
         fecha_fin = cleaned_data.get("fecha_fin")
-
         if fecha_inicio and fecha_fin and fecha_inicio > fecha_fin:
             raise forms.ValidationError("La fecha de inicio no puede ser mayor que la fecha fin.")
-    
 
-
-# Menu
+# ==================== MENÚ ====================
 class MenuForm(forms.ModelForm):
     """Formulario principal para crear/editar menús"""
     TIPO_ITEM_CHOICES = [
@@ -367,8 +346,8 @@ class MenuForm(forms.ModelForm):
             'disponible': 'Disponible',
         }
     
-    def _init_(self, *args, **kwargs):
-        super()._init_(*args, **kwargs)
+    def __init__(self, *args, **kwargs):  # ← CORREGIDO: era _init_
+        super().__init__(*args, **kwargs)
         
         # Si estamos editando, determinar el tipo
         if self.instance and self.instance.pk:
@@ -450,8 +429,8 @@ class MenuProductoInlineForm(forms.ModelForm):
             }),
         }
     
-    def _init_(self, *args, **kwargs):
-        super()._init_(*args, **kwargs)
+    def __init__(self, *args, **kwargs):  # ← CORREGIDO: era _init_
+        super().__init__(*args, **kwargs)
         self.fields['producto'].queryset = Producto.objects.all()
     
     def clean_cantidad(self):
