@@ -13,6 +13,8 @@ from aplicacion.forms import (
     UnidadModalForm,
 )
 import json
+from django.contrib import messages
+from django.shortcuts import redirect
 
 # TUS VISTAS ORIGINALES - NO CAMBIAR
 class ProductoListView(ListView):
@@ -25,20 +27,19 @@ class ProductoListView(ListView):
         context['titulo'] = 'Lista de productos'
         context['modelo'] = 'producto'
         return context
-    
-
-from django.views.generic import CreateView
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.shortcuts import redirect
 
 class ProductoCreateView(CreateView):
+    
     model = Producto
     form_class = ProductoForm
-    template_name = 'forms/formulario_crear.html'
+    template_name = 'forms/formulario_crear_producto.html'
     success_url = reverse_lazy('apl:producto_list')
 
     def get_context_data(self, **kwargs):
+        # Inicializar self.object si no existe
+        if not hasattr(self, 'object'):
+            self.object = None
+            
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear Producto'
         
@@ -51,6 +52,9 @@ class ProductoCreateView(CreateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        # IMPORTANTE: Inicializar self.object
+        self.object = None
+        
         # Detectar qué formulario se envió
         if 'crear_marca' in request.POST:
             return self.crear_marca(request)
@@ -72,7 +76,8 @@ class ProductoCreateView(CreateView):
             return redirect(request.path)
         else:
             messages.error(request, 'Error al crear la marca. Verifique los datos.')
-            return self.render_to_response(self.get_context_data(marca_form=form))
+            # Ya no es necesario pasar marca_form, get_context_data lo maneja
+            return self.render_to_response(self.get_context_data())
 
     def crear_categoria(self, request):
         form = CategoriaModalForm(request.POST)
@@ -82,7 +87,7 @@ class ProductoCreateView(CreateView):
             return redirect(request.path)
         else:
             messages.error(request, 'Error al crear la categoría. Verifique los datos.')
-            return self.render_to_response(self.get_context_data(categoria_form=form))
+            return self.render_to_response(self.get_context_data())
 
     def crear_proveedor(self, request):
         form = ProveedorModalForm(request.POST)
@@ -92,7 +97,7 @@ class ProductoCreateView(CreateView):
             return redirect(request.path)
         else:
             messages.error(request, 'Error al crear el proveedor. Verifique los datos.')
-            return self.render_to_response(self.get_context_data(proveedor_form=form))
+            return self.render_to_response(self.get_context_data())
 
     def crear_unidad(self, request):
         form = UnidadModalForm(request.POST)
@@ -102,7 +107,7 @@ class ProductoCreateView(CreateView):
             return redirect(request.path)
         else:
             messages.error(request, 'Error al crear la unidad. Verifique los datos.')
-            return self.render_to_response(self.get_context_data(unidad_form=form))
+            return self.render_to_response(self.get_context_data())
 
     def form_valid(self, form):
         messages.success(self.request, 'Producto creado exitosamente')
@@ -111,7 +116,6 @@ class ProductoCreateView(CreateView):
     def form_invalid(self, form):
         messages.error(self.request, 'Error al crear el producto. Verifique los datos.')
         return super().form_invalid(form)
-
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'forms/formulario_actualizacion.html'
