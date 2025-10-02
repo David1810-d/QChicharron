@@ -11,9 +11,17 @@
     {{ titulo }}
     
     <!-- Contenedor para mensajes -->
-    <div id="messages-container"></div>
+    <div id="messages-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
     
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" id="formProducto">
         {% csrf_token %}
         
         <!-- Campo Nombre -->
@@ -96,67 +104,83 @@
 <div id="modalMarca" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nueva Marca</h3>
-        <label for="nombreMarca">Nombre: *</label>
-        <input type="text" id="nombreMarca" placeholder="Ej: Nike, Adidas">
-        
-        <label for="paisOrigenMarca">País de Origen: *</label>
-        <input type="text" id="paisOrigenMarca" placeholder="Ej: Estados Unidos, Colombia">
-        
-        <label for="descripcionMarca">Descripción:</label>
-        <textarea id="descripcionMarca" rows="3" placeholder="Descripción opcional de la marca"></textarea>
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalMarca')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarMarca(this)">Guardar</button>
-        </div>
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <label for="nombreMarca">Nombre: *</label>
+            <input type="text" id="nombreMarca" name="nombre" placeholder="Ej: Nike, Adidas" required>
+            
+            <label for="paisOrigenMarca">País de Origen: *</label>
+            <input type="text" id="paisOrigenMarca" name="pais_origen" placeholder="Ej: Estados Unidos, Colombia" required>
+            
+            <label for="descripcionMarca">Descripción:</label>
+            <textarea id="descripcionMarca" name="descripcion" rows="3" placeholder="Descripción opcional de la marca"></textarea>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalMarca')">Cancelar</button>
+                <button type="submit" name="crear_marca" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <div id="modalCategoria" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nueva Categoría</h3>
-        <label for="nombreCategoria">Nombre: *</label>
-        <input type="text" id="nombreCategoria" placeholder="Ej: Bebidas, Carnes, Condimentos">
-        
-        <label for="descripcionCategoria">Descripción:</label>
-        <textarea id="descripcionCategoria" rows="3" placeholder="Descripción opcional de la categoría"></textarea>
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalCategoria')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarCategoria(this)">Guardar</button>
-        </div>
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <label for="nombreCategoria">Nombre: *</label>
+            <input type="text" id="nombreCategoria" name="nombre" placeholder="Ej: Bebidas, Carnes, Condimentos" required>
+            
+            <label for="descripcionCategoria">Descripción:</label>
+            <textarea id="descripcionCategoria" name="descripcion" rows="3" placeholder="Descripción opcional de la categoría"></textarea>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalCategoria')">Cancelar</button>
+                <button type="submit" name="crear_categoria" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <div id="modalProveedor" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nuevo Proveedor</h3>
-        <label for="nombreProveedor">Nombre: *</label>
-        <input type="text" id="nombreProveedor" placeholder="Nombre del proveedor">
-        
-        <label for="nitProveedor">NIT: *</label>
-        <input type="text" id="nitProveedor" placeholder="123456789-0">
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalProveedor')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarProveedor(this)">Guardar</button>
-        </div>
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <label for="nombreProveedor">Nombre: *</label>
+            <input type="text" id="nombreProveedor" name="nombre" placeholder="Nombre del proveedor" required>
+            
+            <label for="nitProveedor">NIT: *</label>
+            <input type="text" id="nitProveedor" name="nit" placeholder="123456789-0" required>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalProveedor')">Cancelar</button>
+                <button type="submit" name="crear_proveedor" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <div id="modalUnidad" class="simple-modal">
     <div class="modal-content">
         <h3>Crear Nueva Unidad</h3>
-        <label for="nombreUnidad">Nombre: *</label>
-        <input type="text" id="nombreUnidad" placeholder="Ej: Kilogramos, Litros, Unidades">
-        
-        <label for="descripcionUnidad">Descripción:</label>
-        <input type="text" id="descripcionUnidad" placeholder="Descripción opcional">
-        
-        <div class="modal-buttons">
-            <button type="button" class="btn-cancel" onclick="cerrarModal('modalUnidad')">Cancelar</button>
-            <button type="button" class="btn-save" onclick="guardarUnidad(this)">Guardar</button>
-        </div>
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <label for="nombreUnidad">Nombre: *</label>
+            <input type="text" id="nombreUnidad" name="nombre" placeholder="Ej: Kilogramos, Litros, Unidades" required>
+            
+            <label for="descripcionUnidad">Descripción:</label>
+            <input type="text" id="descripcionUnidad" name="descripcion" placeholder="Descripción opcional">
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalUnidad')">Cancelar</button>
+                <button type="submit" name="crear_unidad" class="btn-save">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -166,21 +190,66 @@
 
 <script>
 $(document).ready(function() {
-    // Inicializar Select2
-    $('#id_marca, #id_categoria, #id_proveedor, #id_unidad').select2({
+    // Destruir Select2 si ya existe
+    $('#id_marca, #id_categoria, #id_proveedor, #id_unidad').select2('destroy');
+    
+    // Inicializar Select2 correctamente
+    $('#id_marca').select2({
         width: '100%',
-        placeholder: 'Seleccionar...',
-        allowClear: false,
-        language: {
-            noResults: () => "No se encontraron resultados",
-            searching: () => "Buscando..."
-        }
+        placeholder: 'Seleccione una marca',
+        allowClear: true,
+        dropdownAutoWidth: true
     });
+    
+    $('#id_categoria').select2({
+        width: '100%',
+        placeholder: 'Seleccione una categoría',
+        allowClear: true,
+        dropdownAutoWidth: true
+    });
+    
+    $('#id_proveedor').select2({
+        width: '100%',
+        placeholder: 'Seleccione un proveedor',
+        allowClear: true,
+        dropdownAutoWidth: true
+    });
+    
+    $('#id_unidad').select2({
+        width: '100%',
+        placeholder: 'Seleccione una unidad',
+        allowClear: true,
+        dropdownAutoWidth: true
+    });
+    
+    // Preseleccionar elementos recién creados
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('marca_id')) {
+        const marcaId = urlParams.get('marca_id');
+        $('#id_marca').val(marcaId).trigger('change');
+        console.log('Marca preseleccionada:', marcaId);
+    }
+    if (urlParams.has('categoria_id')) {
+        const categoriaId = urlParams.get('categoria_id');
+        $('#id_categoria').val(categoriaId).trigger('change');
+        console.log('Categoría preseleccionada:', categoriaId);
+    }
+    if (urlParams.has('proveedor_id')) {
+        const proveedorId = urlParams.get('proveedor_id');
+        $('#id_proveedor').val(proveedorId).trigger('change');
+        console.log('Proveedor preseleccionado:', proveedorId);
+    }
+    if (urlParams.has('unidad_id')) {
+        const unidadId = urlParams.get('unidad_id');
+        $('#id_unidad').val(unidadId).trigger('change');
+        console.log('Unidad preseleccionada:', unidadId);
+    }
     
     // Cerrar modal al hacer clic fuera
     $('.simple-modal').on('click', function(e) {
         if (e.target === this) cerrarModalConAnimacion(this.id);
-    });x``
+    });
     
     // Cerrar modal con ESC
     $(document).keydown(function(e) {
@@ -190,31 +259,20 @@ $(document).ready(function() {
             });
         }
     });
+
+    // Auto-ocultar mensajes después de 3 segundos
+    setTimeout(function() {
+        $('#messages-container .message').fadeOut(500, function() {
+            $(this).remove();
+        });
+    }, 3000);
 });
 
-// Obtener CSRF token
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-const csrftoken = getCookie('csrftoken');
-
-// Funciones de modal
+// Funciones de modal (mantener igual)
 function abrirModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.style.display = 'block';
-    modal.offsetHeight; // reflow
+    modal.offsetHeight;
     modal.style.opacity = '1';
 }
 
@@ -231,148 +289,24 @@ function cerrarModalConAnimacion(modalId) {
         inputs.forEach(input => input.value = '');
     }, 300);
 }
-
-// Mensajes
-function mostrarMensaje(tipo, mensaje) {
-    const messageHtml = `<div class="message ${tipo}">${mensaje}</div>`;
-    $('#messages-container').html(messageHtml);
-    setTimeout(() => {
-        $('#messages-container .message').fadeOut(500, function() {
-            $(this).remove();
-        });
-    }, 500);
-}
-
-// Actualizar Select2
-function actualizarSelect(selectId, nuevoId, nuevoTexto) {
-    const $select = $('#' + selectId);
-    const newOption = new Option(nuevoTexto, nuevoId, true, true);
-    $select.append(newOption).trigger('change');
-}
-
-// Botón loading
-function toggleBoton(btn, estado, textoLoading = 'Guardando...') {
-    const $btn = $(btn);
-    if (estado === 'loading') {
-        $btn.prop('disabled', true).data('original-text', $btn.text()).text(textoLoading);
-    } else {
-        $btn.prop('disabled', false).text($btn.data('original-text') || 'Guardar');
-    }
-}
-
-// ===== AJAX =====
-function guardarMarca(btn) {
-    const nombre = $('#nombreMarca').val().trim();
-    const paisOrigen = $('#paisOrigenMarca').val().trim();
-    const descripcion = $('#descripcionMarca').val().trim();
-    
-    if (!nombre || !paisOrigen) {
-        mostrarMensaje('error', 'Complete los campos requeridos (Nombre y País de Origen)');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_marca_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, pais_origen: paisOrigen, descripcion }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_marca', data.id, data.text);
-                cerrarModal('modalMarca');
-                mostrarMensaje('success', `Marca "${data.text}" creada exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
-    });
-}
-
-function guardarCategoria(btn) {
-    const nombre = $('#nombreCategoria').val().trim();
-    const descripcion = $('#descripcionCategoria').val().trim();
-    
-    if (!nombre) {
-        mostrarMensaje('error', 'El nombre de la categoría es requerido');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_categoria_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, descripcion }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_categoria', data.id, data.text);
-                cerrarModal('modalCategoria');
-                mostrarMensaje('success', `Categoría "${data.text}" creada exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
-    });
-}
-
-function guardarProveedor(btn) {
-    const nombre = $('#nombreProveedor').val().trim();
-    const nit = $('#nitProveedor').val().trim();
-    
-    if (!nombre || !nit) {
-        mostrarMensaje('error', 'Complete todos los campos requeridos (Nombre y NIT)');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_proveedor_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, nit }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_proveedor', data.id, data.text);
-                cerrarModal('modalProveedor');
-                mostrarMensaje('success', `Proveedor "${data.text}" creado exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
-    });
-}
-
-function guardarUnidad(btn) {
-    const nombre = $('#nombreUnidad').val().trim();
-    const descripcion = $('#descripcionUnidad').val().trim();
-    
-    if (!nombre) {
-        mostrarMensaje('error', 'El nombre de la unidad es requerido');
-        return;
-    }
-
-    toggleBoton(btn, 'loading');
-
-    $.ajax({
-        url: '{% url "apl:crear_unidad_ajax" %}',
-        type: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        data: JSON.stringify({ nombre, descripcion }),
-        success: function(data) {
-            if (data.success) {
-                actualizarSelect('id_unidad', data.id, data.text);
-                cerrarModal('modalUnidad');
-                mostrarMensaje('success', `Unidad "${data.text}" creada exitosamente`);
-            } else mostrarMensaje('error', data.error);
-        },
-        error: () => mostrarMensaje('error', 'Error de conexión. Inténtelo nuevamente.'),
-        complete: () => toggleBoton(btn, 'normal')
-    });
-}
 </script>
-
+<script>
+// Preseleccionar elementos recién creados
+$(document).ready(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('marca_id')) {
+        $('#id_marca').val(urlParams.get('marca_id')).trigger('change');
+    }
+    if (urlParams.has('categoria_id')) {
+        $('#id_categoria').val(urlParams.get('categoria_id')).trigger('change');
+    }
+    if (urlParams.has('proveedor_id')) {
+        $('#id_proveedor').val(urlParams.get('proveedor_id')).trigger('change');
+    }
+    if (urlParams.has('unidad_id')) {
+        $('#id_unidad').val(urlParams.get('unidad_id')).trigger('change');
+    }
+});
+</script>
 {% endblock %}

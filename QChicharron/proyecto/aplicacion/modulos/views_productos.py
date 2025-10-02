@@ -5,7 +5,16 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from aplicacion.models import Producto, Marca, Categoria, Proveedor, Unidad
 from aplicacion.forms import ProductoForm  # Importa tu formulario personalizado si quieres usarlo
+from aplicacion.forms import (
+    ProductoForm,
+    MarcaModalForm,
+    CategoriaModalForm,
+    ProveedorModalForm,
+    UnidadModalForm,
+)
 import json
+from django.contrib import messages
+from django.shortcuts import redirect
 
 # TUS VISTAS ORIGINALES - NO CAMBIAR
 class ProductoListView(ListView):
@@ -18,23 +27,95 @@ class ProductoListView(ListView):
         context['titulo'] = 'Lista de productos'
         context['modelo'] = 'producto'
         return context
-    
 
 class ProductoCreateView(CreateView):
+    
     model = Producto
-    template_name = 'forms/formulario_crear_producto.html'  # Cambiar esta línea
-    form_class = ProductoForm  # Y esta línea
-
-    def get_success_url(self):
-        return reverse_lazy('apl:producto_list')
+    form_class = ProductoForm
+    template_name = 'forms/formulario_crear_producto.html'
+    success_url = reverse_lazy('apl:producto_list')
 
     def get_context_data(self, **kwargs):
+        # Inicializar self.object si no existe
+        if not hasattr(self, 'object'):
+            self.object = None
+            
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Crear producto'
-        context['modulo'] = "producto"
+        context['titulo'] = 'Crear Producto'
+        
+        # Agregar formularios para los modales
+        context['marca_form'] = MarcaModalForm()
+        context['categoria_form'] = CategoriaModalForm()
+        context['proveedor_form'] = ProveedorModalForm()
+        context['unidad_form'] = UnidadModalForm()
+        
         return context
 
+    def post(self, request, *args, **kwargs):
+        # IMPORTANTE: Inicializar self.object
+        self.object = None
+        
+        # Detectar qué formulario se envió
+        if 'crear_marca' in request.POST:
+            return self.crear_marca(request)
+        elif 'crear_categoria' in request.POST:
+            return self.crear_categoria(request)
+        elif 'crear_proveedor' in request.POST:
+            return self.crear_proveedor(request)
+        elif 'crear_unidad' in request.POST:
+            return self.crear_unidad(request)
+        else:
+            # Formulario principal de producto
+            return super().post(request, *args, **kwargs)
 
+    def crear_marca(self, request):
+        form = MarcaModalForm(request.POST)
+        if form.is_valid():
+            marca = form.save()
+            messages.success(request, f'Marca "{marca.nombre}" creada exitosamente')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Error al crear la marca. Verifique los datos.')
+            # Ya no es necesario pasar marca_form, get_context_data lo maneja
+            return self.render_to_response(self.get_context_data())
+
+    def crear_categoria(self, request):
+        form = CategoriaModalForm(request.POST)
+        if form.is_valid():
+            categoria = form.save()
+            messages.success(request, f'Categoría "{categoria.nombre}" creada exitosamente')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Error al crear la categoría. Verifique los datos.')
+            return self.render_to_response(self.get_context_data())
+
+    def crear_proveedor(self, request):
+        form = ProveedorModalForm(request.POST)
+        if form.is_valid():
+            proveedor = form.save()
+            messages.success(request, f'Proveedor "{proveedor.nombre}" creado exitosamente')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Error al crear el proveedor. Verifique los datos.')
+            return self.render_to_response(self.get_context_data())
+
+    def crear_unidad(self, request):
+        form = UnidadModalForm(request.POST)
+        if form.is_valid():
+            unidad = form.save()
+            messages.success(request, f'Unidad "{unidad.nombre}" creada exitosamente')
+            return redirect(request.path)
+        else:
+            messages.error(request, 'Error al crear la unidad. Verifique los datos.')
+            return self.render_to_response(self.get_context_data())
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Producto creado exitosamente')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Error al crear el producto. Verifique los datos.')
+        return super().form_invalid(form)
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'forms/formulario_actualizacion.html'
