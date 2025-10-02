@@ -95,6 +95,7 @@ class Select2WithCreateWidget(ModelSelect2Widget):
             attrs['data-create-text'] = self.create_text
         return attrs
     #mis cambios de producto
+    #xd
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
