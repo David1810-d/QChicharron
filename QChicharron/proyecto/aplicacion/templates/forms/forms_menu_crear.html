@@ -1,0 +1,415 @@
+{% extends 'forms/formulario_crear.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .productos-section {
+        display: none;
+    }
+    .plato-section {
+        display: none;
+    }
+    .formset-row {
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+        position: relative;
+    }
+    .delete-row {
+        color: #dc3545;
+        cursor: pointer;
+    }
+    .empty-form-template {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3>{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="menuForm">
+                        {% csrf_token %}
+                        
+                        <!-- Mensajes de error generales -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Campo Tipo de Item -->
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.tipo_item.label }} <span class="text-danger">*</span></label>
+                                {{ form.tipo_item }}
+                                {% if form.tipo_item.errors %}
+                                <div class="text-danger">{{ form.tipo_item.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">Seleccione qué tipo de ítem desea crear</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Campo Plato (solo visible cuando tipo_item = 'plato') -->
+                        <div class="row mb-3 plato-section" id="plato-section">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">{{ form.plato_id.label }} <span class="text-danger">*</span></label>
+                                {{ form.plato_id }}
+                                {% if form.plato_id.errors %}
+                                <div class="text-danger">{{ form.plato_id.errors }}</div>
+                                {% endif %}
+                                <small class="form-text text-muted">Seleccione un plato existente para agregar al menú</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Sección de Productos (solo visible cuando tipo_item = 'productos') -->
+                        <div id="productos-section" class="productos-section">
+                            <div class="card mb-3">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5><i class="fas fa-shopping-basket"></i> Productos del Menú</h5>
+                                </div>
+                                <div class="card-body">
+                                    {{ formset.management_form }}
+                                    
+                                    <!-- Errores del formset -->
+                                    {% if formset.non_form_errors %}
+                                    <div class="alert alert-danger">
+                                        {{ formset.non_form_errors }}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <div id="formset-container">
+                                        {% for form in formset %}
+                                        <div class="formset-row" data-form-index="{{ forloop.counter0 }}">
+                                            <div class="row">
+                                                <!-- Campos ocultos -->
+                                                {{ form.id }}
+                                                
+                                                <!-- Producto -->
+                                                <div class="col-md-5">
+                                                    <label class="form-label">{{ form.producto.label }}</label>
+                                                    {{ form.producto }}
+                                                    {% if form.producto.errors %}
+                                                    <div class="text-danger small">{{ form.producto.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Cantidad -->
+                                                <div class="col-md-3">
+                                                    <label class="form-label">{{ form.cantidad.label }}</label>
+                                                    {{ form.cantidad }}
+                                                    {% if form.cantidad.errors %}
+                                                    <div class="text-danger small">{{ form.cantidad.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Orden -->
+                                                <div class="col-md-2">
+                                                    <label class="form-label">{{ form.orden.label }}</label>
+                                                    {{ form.orden }}
+                                                    {% if form.orden.errors %}
+                                                    <div class="text-danger small">{{ form.orden.errors }}</div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <!-- Botón Eliminar -->
+                                                <div class="col-md-2 d-flex align-items-end">
+                                                    {% if form.instance.pk %}
+                                                        {{ form.DELETE }}
+                                                        <label for="{{ form.DELETE.id_for_label }}" class="btn btn-danger btn-sm w-100">
+                                                            <i class="fas fa-trash"></i> Eliminar
+                                                        </label>
+                                                    {% else %}
+                                                        <button type="button" class="btn btn-danger btn-sm w-100 delete-empty-form">
+                                                            <i class="fas fa-trash"></i> Quitar
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-success mt-3" id="add-form">
+                                        <i class="fas fa-plus"></i> Agregar Producto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Datos del Menú -->
+                        <div class="card mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h5><i class="fas fa-info-circle"></i> Información del Menú</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Nombre -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">{{ form.nombre.label }} <span class="text-danger">*</span></label>
+                                        {{ form.nombre }}
+                                        {% if form.nombre.errors %}
+                                        <div class="text-danger">{{ form.nombre.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Categoría -->
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">{{ form.categoria_menu.label }}</label>
+                                        {{ form.categoria_menu }}
+                                        {% if form.categoria_menu.errors %}
+                                        <div class="text-danger">{{ form.categoria_menu.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Descripción -->
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label fw-bold">{{ form.descripcion.label }}</label>
+                                        {{ form.descripcion }}
+                                        {% if form.descripcion.errors %}
+                                        <div class="text-danger">{{ form.descripcion.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Precio -->
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-bold">{{ form.precio_menu.label }} <span class="text-danger">*</span></label>
+                                        {{ form.precio_menu }}
+                                        {% if form.precio_menu.errors %}
+                                        <div class="text-danger">{{ form.precio_menu.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Descuento -->
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label fw-bold">{{ form.descuento.label }}</label>
+                                        {{ form.descuento }}
+                                        {% if form.descuento.errors %}
+                                        <div class="text-danger">{{ form.descuento.errors }}</div>
+                                        {% endif %}
+                                        <small class="form-text text-muted">{{ form.descuento.help_text }}</small>
+                                    </div>
+                                    
+                                    <!-- Disponible -->
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-check mt-4">
+                                            {{ form.disponible }}
+                                            <label class="form-check-label" for="{{ form.disponible.id_for_label }}">
+                                                {{ form.disponible.label }}
+                                            </label>
+                                        </div>
+                                        {% if form.disponible.errors %}
+                                        <div class="text-danger">{{ form.disponible.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Botones -->
+                        <div class="row mt-4">
+                            <div class="col-md-12 text-end">
+                                <a href="{% url 'apl:menu_list' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Guardar Menú
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    
+    // Función para mostrar/ocultar secciones según el tipo seleccionado
+    function toggleItemSelection() {
+        const tipoItem = $('#tipo_item').val();
+        const platoSection = $('#plato-section');
+        const productosSection = $('#productos-section');
+        
+        // Ocultar ambas secciones
+        platoSection.hide();
+        productosSection.hide();
+        
+        // Mostrar la sección correspondiente
+        if (tipoItem === 'plato') {
+            platoSection.show();
+        } else if (tipoItem === 'productos') {
+            productosSection.show();
+        }
+    }
+    
+    // Ejecutar al cargar la página
+    toggleItemSelection();
+    
+    // Ejecutar cuando cambie el select
+    $('#tipo_item').on('change', function() {
+        toggleItemSelection();
+    });
+    
+    // Función para agregar nuevo formulario de producto
+    $('#add-form').on('click', function(e) {
+        e.preventDefault();
+        
+        const formContainer = $('#formset-container');
+        const totalFormsInput = $('input[name="menu_productos-TOTAL_FORMS"]');
+        const currentFormCount = parseInt(totalFormsInput.val());
+        
+        // Obtener el template del último formulario
+        const lastForm = formContainer.find('.formset-row').last();
+        
+        if (lastForm.length === 0) {
+            console.error('No se encontró ningún formulario base');
+            return;
+        }
+        
+        // Clonar el formulario
+        const newForm = lastForm.clone(true);
+        
+        // Actualizar los índices en el nuevo formulario
+        newForm.html(function(i, html) {
+            return html
+                .replace(/menu_productos-\d+-/g, 'menu_productos-' + currentFormCount + '-')
+                .replace(/menu_productos-\d+_/g, 'menu_productos-' + currentFormCount + '_');
+        });
+        
+        // Actualizar los atributos name e id
+        newForm.find('input, select, textarea').each(function() {
+            const elem = $(this);
+            
+            if (elem.attr('name')) {
+                elem.attr('name', elem.attr('name').replace(/menu_productos-\d+-/, 'menu_productos-' + currentFormCount + '-'));
+            }
+            
+            if (elem.attr('id')) {
+                elem.attr('id', elem.attr('id').replace(/menu_productos-\d+/, 'menu_productos-' + currentFormCount));
+            }
+        });
+        
+        // Limpiar valores
+        newForm.find('input[type="text"], input[type="number"], textarea').val('');
+        newForm.find('select').prop('selectedIndex', 0);
+        newForm.find('input[type="checkbox"]').prop('checked', false);
+        
+        // Eliminar el campo DELETE si existe (solo para nuevos formularios)
+        newForm.find('input[type="checkbox"][name*="DELETE"]').parent().remove();
+        
+        // Asegurar que tenga el botón de eliminar correcto
+        const deleteCol = newForm.find('.col-md-2').last();
+        deleteCol.html(`
+            <button type="button" class="btn btn-danger btn-sm w-100 delete-empty-form">
+                <i class="fas fa-trash"></i> Quitar
+            </button>
+        `);
+        
+        // Actualizar el atributo data-form-index
+        newForm.attr('data-form-index', currentFormCount);
+        
+        // Agregar al contenedor
+        formContainer.append(newForm);
+        
+        // Incrementar el contador de formularios
+        totalFormsInput.val(currentFormCount + 1);
+        
+        console.log('Formulario agregado. Total formularios:', currentFormCount + 1);
+    });
+    
+    // Eliminar formulario vacío (no guardado en la BD)
+    $(document).on('click', '.delete-empty-form', function(e) {
+        e.preventDefault();
+        
+        const formRow = $(this).closest('.formset-row');
+        const formContainer = $('#formset-container');
+        const totalFormsInput = $('input[name="menu_productos-TOTAL_FORMS"]');
+        
+        // Solo eliminar si hay más de un formulario
+        if (formContainer.find('.formset-row').length > 1) {
+            formRow.remove();
+            
+            // Decrementar el contador
+            const currentCount = parseInt(totalFormsInput.val());
+            totalFormsInput.val(currentCount - 1);
+            
+            // Reindexar los formularios restantes
+            formContainer.find('.formset-row').each(function(index) {
+                const row = $(this);
+                row.attr('data-form-index', index);
+                
+                row.find('input, select, textarea').each(function() {
+                    const elem = $(this);
+                    
+                    if (elem.attr('name')) {
+                        elem.attr('name', elem.attr('name').replace(/menu_productos-\d+-/, 'menu_productos-' + index + '-'));
+                    }
+                    
+                    if (elem.attr('id')) {
+                        elem.attr('id', elem.attr('id').replace(/menu_productos-\d+/, 'menu_productos-' + index));
+                    }
+                });
+            });
+            
+            console.log('Formulario eliminado. Total formularios:', currentCount - 1);
+        } else {
+            alert('Debe mantener al menos un formulario de producto.');
+        }
+    });
+    
+    // Validación antes de enviar el formulario
+    $('#menuForm').on('submit', function(e) {
+        const tipoItem = $('#tipo_item').val();
+        
+        if (!tipoItem) {
+            e.preventDefault();
+            alert('Por favor seleccione un tipo de ítem.');
+            return false;
+        }
+        
+        if (tipoItem === 'plato') {
+            const platoId = $('#plato_id').val();
+            if (!platoId) {
+                e.preventDefault();
+                alert('Por favor seleccione un plato.');
+                return false;
+            }
+        }
+        
+        if (tipoItem === 'productos') {
+            const productosSection = $('#productos-section');
+            let hasValidProduct = false;
+            
+            productosSection.find('.formset-row').each(function() {
+                const productoSelect = $(this).find('select[name*="producto"]');
+                if (productoSelect.val()) {
+                    hasValidProduct = true;
+                }
+            });
+            
+            if (!hasValidProduct) {
+                e.preventDefault();
+                alert('Por favor agregue al menos un producto al menú.');
+                return false;
+            }
+        }
+        
+        return true;
+    });
+});
+</script>
+{% endblock extra_js %}

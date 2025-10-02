@@ -5,8 +5,20 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django_select2.forms import *
 from django.core.exceptions import ValidationError
-
-
+#jijija
+from aplicacion.models import (
+    Plato,
+    PlatoProducto,
+    Menu,
+    Pedido,
+    PedidoDetalle,
+    Producto,
+    Marca,
+    Categoria,
+    Proveedor,
+    Unidad,
+)
+#jijija
 class PlatoForm(forms.ModelForm):
     class Meta:
         model = Plato
@@ -94,6 +106,9 @@ class Select2WithCreateWidget(ModelSelect2Widget):
             attrs['data-create-url'] = self.create_url
             attrs['data-create-text'] = self.create_text
         return attrs
+
+#mis cambios de producto
+    #xd
     #mis cambios de producto
     #xd
 class ProductoForm(forms.ModelForm):
@@ -120,8 +135,8 @@ class ProductoForm(forms.ModelForm):
             raise forms.ValidationError("El stock no puede ser negativo.")
         return stock
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def _init_(self, *args, **kwargs):
+        super()._init_(*args, **kwargs)
         # Asegurar que los selects traen datos de la base
         self.fields['marca'].queryset = Marca.objects.all()
         self.fields['categoria'].queryset = Categoria.objects.all()
