@@ -1,8 +1,9 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 import datetime
 import uuid
-from django.core.exceptions import ValidationError
 
 # ------------------ Modelos: Administrador, Usuario, Empleado -----------------------------
 
@@ -157,15 +158,180 @@ class Mesa(models.Model):
 
     def __str__(self):
         return f"Mesa {self.id} - {self.ubicacion}"
-    
-class Menu(models.Model):
-    nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
+
+class Pedido(models.Model):
+    mesa = models.ForeignKey(Mesa, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(default=timezone.now)  # ← CORREGIDO
+    estado = models.CharField(max_length=20, choices=[
+        ('pendiente', 'Pendiente'), 
+        ('entregado', 'Entregado')
+    ])
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return self.nombre
+        return f"Pedido {self.id} - Mesa {self.mesa.id}"
+
+# ---------------------------- Menú  -----------------------------
+from django.db import models
+from django.core.validators import MinValueValidator
+from decimal import Decimal
+
+
+class MenuProducto(models.Model):
+    """
+    Tabla intermedia para la relación ManyToMany entre Menu y Producto
+    Permite agregar múltiples productos a un menú con sus cantidades
+    """
+    menu = models.ForeignKey(
+        'Menu', 
+        on_delete=models.CASCADE,
+        related_name='menu_productos',
+        verbose_name='Menú'
+    )
+    producto = models.ForeignKey(
+        'Producto',
+        on_delete=models.CASCADE,
+        related_name='productos_menu',
+        verbose_name='Producto'
+    )
+    cantidad = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=1,
+        validators=[MinValueValidator(Decimal('0.01'))],
+        verbose_name='Cantidad',
+        help_text='Cantidad del producto en el menú'
+    )
+    orden = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Orden',
+        help_text='Orden de presentación en el menú'
+    )
+    fecha_agregado = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Fecha Agregado'
+    )
     
+    class Meta:
+        verbose_name = 'Producto del Menú'
+        verbose_name_plural = 'Productos del Menú'
+        ordering = ['orden', 'fecha_agregado']
+        unique_together = ['menu', 'producto']  # No repetir el mismo producto en un menú
+    
+    def __str__(self):
+        return f"{self.menu.nombre} - {self.producto.nombre} ({self.cantidad})"
+    
+    def get_subtotal(self):
+        """Calcula el subtotal basado en el precio del producto"""
+        if hasattr(self.producto, 'precio') and self.producto.precio:
+            return self.cantidad * self.producto.precio
+        return Decimal('0.00')
+
+
+# REEMPLAZAR tu modelo Menu actual con este:
+# ---------------------------- Menú  -----------------------------
+class Menu(models.Model):
+    """
+    Modelo que puede referenciar tanto Productos como Platos
+    usando una relación polimórfica
+    """
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
+    precio_menu = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    disponible = models.BooleanField(default=True)
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+    
+    # Campos para la relación polimórfica
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    item = GenericForeignKey('content_type', 'object_id')
+    
+    # Campos adicionales específicos del menú
+    categoria_menu = models.CharField(
+        max_length=50,
+        choices=[
+            ('entrada', 'Entrada'),
+            ('plato_principal', 'Plato Principal'),
+            ('postre', 'Postre'),
+            ('bebida', 'Bebida'),
+            ('combo', 'Combo')
+        ],
+        default='plato_principal'
+    )
+    
+    descuento = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    
+    # Mantener campo precio original para compatibilidad temporal
+    precio = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    # Relación many-to-many con productos (SOLO UNA VEZ)
+    productos = models.ManyToManyField(
+        'Producto',
+        through='MenuProducto',
+        related_name='menus_disponibles',
+        blank=True
+    )
+    
+    class Meta:
+        verbose_name = "Ítem del Menú"
+        verbose_name_plural = "Ítems del Menú"
+        ordering = ['categoria_menu', 'nombre']
+    
+    def get_precio_final(self):
+        """Obtiene el precio final considerando descuentos"""
+        if self.precio_menu:
+            precio_base = self.precio_menu
+        elif self.precio:
+            precio_base = self.precio
+        elif hasattr(self.item, 'precio'):
+            precio_base = self.item.precio
+        else:
+            precio_base = 0
+        
+        descuento_aplicado = precio_base * (self.descuento / 100)
+        return precio_base - descuento_aplicado
+    
+    def get_tipo_item(self):
+        """Retorna el tipo de ítem (producto o plato)"""
+        if self.content_type:
+            return self.content_type.model
+        return "menu_simple"
+    
+    def get_stock_disponible(self):
+        """Si el ítem es un producto, retorna el stock disponible"""
+        if self.get_tipo_item() == 'producto' and self.item:
+            return self.item.stock
+        return None
+    
+    def puede_servirse(self):
+        """Verifica si el ítem del menú puede servirse"""
+        if not self.disponible:
+            return False
+        
+        if not self.item:
+            return True
+        
+        if self.get_tipo_item() == 'producto':
+            return self.item.stock > 0
+        
+        if self.get_tipo_item() == 'plato':
+            for plato_producto in self.item.platoproducto_set.all():
+                if plato_producto.producto.stock < plato_producto.cantidad:
+                    return False
+        
+        return True
+    
+    def __str__(self):
+        precio = self.get_precio_final()
+        if self.item:
+            tipo = self.get_tipo_item().title()
+            return f"{self.nombre} ({tipo}) - ${precio}"
+        else:
+            return f"{self.nombre} - ${precio}"
+
+
+
+# ---------------------------- Menú y Plato -----------------------------
 class Plato(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
@@ -181,37 +347,27 @@ class Plato(models.Model):
     def __str__(self):
         return self.nombre
 
-class Pedido(models.Model):
-    mesa = models.ForeignKey("Mesa", on_delete=models.CASCADE)
-    menu = models.ForeignKey("Menu", on_delete=models.CASCADE, default=1)
-    fecha = models.DateTimeField(default=timezone.now)
-    estado = models.CharField(
-        max_length=20,
-        choices=[('pendiente', 'Pendiente'), ('entregado', 'Entregado')],
-        default='pendiente'
+# ELIMINAR ESTO DE MODELS.PY:
+# PlatoProductoFormSet = inlineformset_factory(...)
+
+
+
+# ---------------------------- Menú y Plato -----------------------------
+class Plato(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField()
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True, blank=True)
+
+    productos = models.ManyToManyField(
+        Producto,
+        through="PlatoProducto",
+        related_name="platos"
     )
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Pedido {self.id} - Mesa {self.mesa.id}"
+        return self.nombre
 
-    def calcular_subtotal(self):
-        total = sum(detalle.menu.precio * detalle.cantidad for detalle in self.detalles.all())
-        self.subtotal = total
-        return total
-
-    def save(self, *args, **kwargs):
-        self.calcular_subtotal()
-        super().save(*args, **kwargs)
-
-
-class PedidoDetalle(models.Model):
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
-    menu = models.ForeignKey("Menu", on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField(default=1)
-
-    def __str__(self):
-        return f"{self.cantidad} x {self.menu.nombre} (Pedido {self.pedido.id})"
 
 # ---------------------------- Relaciones: PedidoProducto, PedidoMenu, PlatoProducto -----------------------------
 
@@ -325,3 +481,4 @@ class Informe(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.tipo}) - {self.fecha_inicio} a {self.fecha_fin}"   
+

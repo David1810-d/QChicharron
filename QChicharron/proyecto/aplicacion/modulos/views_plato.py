@@ -6,7 +6,21 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.contrib import messages
 
+
+# 🔹 Mixin genérico para manejar mensajes de éxito
+class SuccessMessageMixinCustom:
+    success_message = None
+
+    def form_valid(self, form, formset=None):
+        response = super().form_valid(form)
+        if self.success_message:
+            messages.success(self.request, self.success_message)
+        return response
+
+
+# 🔹 Listar con función
 def listar_plato(request):
     data = {
         "platos": "platos",
@@ -15,6 +29,8 @@ def listar_plato(request):
     }
     return render(request, 'modulos/plato.html', data)
 
+
+# 🔹 Listar con clase
 class PlatoListView(ListView):
     model = Plato
     template_name = 'modulos/plato.html'
@@ -24,18 +40,19 @@ class PlatoListView(ListView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Listado de Platos'
         return context
-    
-class PlatoCreateView(CreateView):
+
+
+# 🔹 Crear Plato
+class PlatoCreateView(SuccessMessageMixinCustom, CreateView):
     model = Plato
     form_class = PlatoForm
     template_name = 'forms/formulario_crear_plato.html'
     success_url = reverse_lazy('apl:listar_plato')
+    success_message = "✅ El plato se ha creado correctamente "
 
-    # CORREGIDO: Ahora está dentro de la clase
     def get(self, request, *args, **kwargs):
         self.object = None
         form = self.get_form()
-        # Inicializar formset vacío
         formset = PlatoProductoFormSet(queryset=PlatoProducto.objects.none())
         return render(request, self.template_name, {
             'form': form,
@@ -53,6 +70,7 @@ class PlatoCreateView(CreateView):
             plato = form.save()
             formset.instance = plato
             formset.save()
+            messages.success(request, self.success_message)  # 👈 mensaje automático
             return redirect(self.success_url)
 
         return render(request, self.template_name, {
@@ -62,11 +80,14 @@ class PlatoCreateView(CreateView):
             'entidad': 'Plato'
         })
 
-class PlatoUpdateView(UpdateView):
+
+# 🔹 Actualizar Plato
+class PlatoUpdateView(SuccessMessageMixinCustom, UpdateView):
     model = Plato
     form_class = PlatoForm
     template_name = 'forms/formulario_actualizar_plato.html'
     success_url = reverse_lazy('apl:listar_plato')
+    success_message = "El plato se ha actualizado correctamente ✅"
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -88,6 +109,7 @@ class PlatoUpdateView(UpdateView):
             plato = form.save()
             formset.instance = plato
             formset.save()
+            messages.success(request, self.success_message)  # 👈 mensaje automático
             return redirect(self.success_url)
 
         return render(request, self.template_name, {
@@ -96,8 +118,9 @@ class PlatoUpdateView(UpdateView):
             'titulo': 'Editar Plato',
             'entidad': 'Plato'
         })
-    
 
+
+# 🔹 Eliminar Plato (AJAX + SweetAlert)
 @method_decorator(csrf_exempt, name="dispatch")
 class PlatoDeleteView(DeleteView):
     model = Plato
