@@ -1,3 +1,4 @@
+//asd
 $(function () {
     $("form").on("submit", function (e) {
         let valid = true;
@@ -32,3 +33,4 @@ $(function () {
         }
     });
 });
+//asdasd

@@ -5,8 +5,9 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django_select2.forms import *
 from django.core.exceptions import ValidationError
+#jijija
 
-
+#jijija
 class PlatoForm(forms.ModelForm):
     class Meta:
         model = Plato
