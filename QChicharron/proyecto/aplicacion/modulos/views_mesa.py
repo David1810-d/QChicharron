@@ -1,12 +1,11 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.shortcuts import render
 from aplicacion.models import Mesa
 
 class MesaListView(ListView):
     model = Mesa
     template_name = 'modulos/mesa.html'
-    context_object_name = 'mesas'
+    context_object_name = 'mesa'  # <-- CAMBIO: coincide con el template
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -16,48 +15,31 @@ class MesaListView(ListView):
 class MesaCreateView(CreateView):
     model = Mesa
     template_name = 'forms/formulario_crear.html'
-    fields = ['numero', 'capacidad', 'ubicacion']  # <-- CAMBIO AQUÍ
-
-    def get_success_url(self):
-        return reverse_lazy('apl:mesa_list')
+    fields = ['numero', 'capacidad', 'ubicacion']
+    success_url = reverse_lazy('apl:mesa_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Crear Mesa'
-        context['modulo'] = "mesa"
+        context['modulo'] = 'mesa'
         return context
-  
 
 class MesaUpdateView(UpdateView):
     model = Mesa
     template_name = 'forms/formulario_actualizacion.html'
-    fields = ['numero', 'capacidad', 'ubicacion']  # <-- CAMBIO AQUÍ
-
-    def get_success_url(self):
-        return reverse_lazy('apl:mesa_list')
+    fields = ['numero', 'capacidad', 'ubicacion']
+    success_url = reverse_lazy('apl:mesa_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Editar Mesa'
-        return context
-    model = Mesa
-    template_name = 'forms/formulario_actualizacion.html'
-    fields = ['capacidad', 'ubicacion']
-
-    def get_success_url(self):
-        return reverse_lazy('apl:mesa_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Editar Mesa'
+        context['modulo'] = 'mesa'
         return context
 
 class MesaDeleteView(DeleteView):
     model = Mesa
     template_name = 'forms/confirmar_eliminacion.html'
-
-    def get_success_url(self):
-        return reverse_lazy('apl:mesa_list')
+    success_url = reverse_lazy('apl:mesa_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -52,10 +52,14 @@
                 </button>
             </a>
           
-                <button type="button" onclick="eliminarProducto({{ p.pk }})" class="btn btn-danger">
-                <i class="bi bi-trash3-fill"></i>
-                </button>
-                
+
+                                <!-- Botón eliminar con SweetAlert -->
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm btn-delete"
+                                            data-url="{% url 'apl:eliminar_producto' p.pk %}"
+                                            data-name="el producto {{ p.nombre }}">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
 {%endfor%}
 {%endblock%}
 
