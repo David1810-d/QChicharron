@@ -16,7 +16,17 @@ from aplicacion.forms import (
 import json
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.contrib import messages
 
+class successMessageMixin:
+    success_message = None
+
+    def form_valid(self, form,formset = None):
+        response = super().form_valid(form)
+        if self.success_message:
+            messages.success(self.request, self.success_message)
+        return response()
+    
 # TUS VISTAS ORIGINALES - NO CAMBIAR
 class ProductoListView(ListView):
     model = Producto
@@ -35,6 +45,8 @@ class ProductoCreateView(CreateView):
     form_class = ProductoForm
     template_name = 'forms/formulario_crear_producto.html'
     success_url = reverse_lazy('apl:producto_list')
+    success_message = "Producto creado exitosamente"
+    
 
     def get_context_data(self, **kwargs):
         # Inicializar self.object si no existe
@@ -121,6 +133,7 @@ class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'forms/formulario_actualizacion.html'
     form_class = ProductoForm
+    success_message = "Producto creado exitosamente"
 
     def get_success_url(self):
         return reverse_lazy('apl:producto_list')

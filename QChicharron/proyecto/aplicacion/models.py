@@ -378,7 +378,7 @@ class PedidoProducto(models.Model):
     )
 
     def __str__(self):
-        return f"Producto {self.producto.nombre} en pedido {self.pedido.id}"
+        return f"Producto {self.producto.nombre} en pedido {self.pedido.id}" 
 
 
 class PedidoMenu(models.Model):
