@@ -1,6 +1,18 @@
 {% extends "layout.html" %}
 
 {% block content %}
+<!-- Mostrar mensajes -->
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+{% endif %}
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">{{ titulo }}</h6>
@@ -17,7 +29,7 @@
                         <th>
                             <a href="{% url 'apl:crear_mesa' %}">
                                 <button type="button" class="btn btn-success btn-sm">
-                                    <i class="bi bi-plus-circle-fill"></i>
+                                    <i class="bi bi-plus-circle-fill"></i> Nueva Mesa
                                 </button>
                             </a>
                         </th>
@@ -31,21 +43,24 @@
                         <td>{{ m.capacidad }}</td>
                         <td>{{ m.ubicacion }}</td>
                         <td>
-                            <a href="{% url 'apl:editar_mesa' m.id %}">
-                                <button class="btn btn-warning btn-sm mb-1">
-                                    <i class="bi bi-pen-fill"></i>
-                                </button>
+                            <a href="{% url 'apl:editar_mesa' m.id %}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pen-fill"></i>
                             </a>
-                            <a href="{% url 'apl:eliminar_mesa' m.id %}">
-                                <button class="btn btn-danger btn-sm mb-1">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </a>
+                            
+                            <!-- Botón de eliminar con modal de confirmación -->
+                            <button type="button"
+                                            class="btn btn-danger btn-sm btn-delete"
+                                            data-url="{% url 'apl:eliminar_mesa' m.id %}"
+                                            data-name="la mesa {{ m.id }}">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+
+                    
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5">No hay mesas registradas.</td>
+                        <td colspan="5" class="text-center">No hay mesas registradas.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
