@@ -1,130 +1,160 @@
-{% extends 'forms/formulario_actualizacion.html' %}
+{% extends 'layout.html' %}
+{% load static %}
 
-{% block actu %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'lib/css/forms.css' %}">
+<link rel="stylesheet" href="{% static 'lib/css/custom.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
 
-<!-- Botón para abrir modal -->
-<button type="button" class="btn btn-success mt-2" data-toggle="modal" data-target="#productoModalActualizar">
-  Agregar Producto
-</button>
-
-<!-- Modal Actualizar -->
-<div class="modal fade" id="productoModalActualizar" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Agregar Producto</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body" id="modalFormContainerActualizar">
-        <div class="loading">Cargando formulario...</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="guardarProductoActualizar">Agregar Producto</button>
-      </div>
+<div class="form-container">
+    <h1>{{ titulo }}</h1>
+    
+    <div id="messages-container">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
     </div>
-  </div>
+    
+    <form method="post" id="formPlato">
+        {% csrf_token %}
+        
+        <!-- Campos del Plato -->
+        <p>
+            <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}:</label>
+            {{ form.nombre }}
+        </p>
+        
+        <p>
+            <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}:</label>
+            {{ form.descripcion }}
+        </p>
+        
+        <p>
+            <label for="{{ form.precio.id_for_label }}">{{ form.precio.label }}:</label>
+            {{ form.precio }}
+        </p>
+
+        <!-- Formset de productos existentes -->
+        {{ formset.management_form }}
+        <div id="productos-container">
+            {% for producto_form in formset %}
+                <div class="producto-item" style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                    {{ producto_form.as_p }}
+                </div>
+            {% endfor %}
+        </div>
+        
+                <!-- Botón para agregar productos vía modal -->
+        <button type="button" class="create-button" onclick="abrirModal('modalProducto')">
+            + Agregar Producto
+        </button>
+        
+        <button type="submit" style="margin-top: 20px;">Actualizar Plato</button>
+    </form>
+    
+    <div class="back-link">
+        <button type="button" onclick="window.history.back();">Volver</button>
+    </div>
 </div>
 
-{% endblock %}
+<!-- MODAL PARA AGREGAR PRODUCTO -->
+<div id="modalProducto" class="simple-modal">
+    <div class="modal-content">
+        <h3>Agregar Producto al Plato</h3>
+        <form method="post" action="">
+            {% csrf_token %}
+            
+            <label for="productoSelect">Producto: *</label>
+            <select id="productoSelect" name="producto" required>
+                <option value="">-- Seleccionar --</option>
+                {% for producto in productos %}
+                    <option value="{{ producto.id }}">{{ producto.nombre }}</option>
+                {% endfor %}
+            </select>
+            
+            <label for="cantidadInput">Cantidad: *</label>
+            <input type="number" id="cantidadInput" name="cantidad" step="0.01" min="0.01" placeholder="1.00" required>
+            
+            <label for="unidadInput">Unidad: *</label>
+            <input type="text" id="unidadInput" name="unidad" placeholder="kg, litros, unidades" required>
+            
+            <div class="modal-buttons">
+                <button type="button" class="btn-cancel" onclick="cerrarModal('modalProducto')">Cancelar</button>
+                <button type="submit" name="agregar_producto" class="btn-save">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
 <script>
-  console.log("=== SCRIPT MODAL ACTUALIZAR CARGADO ===");
-  
-  $(document).ready(function() {
-
-    // Cargar formulario cuando se abre el modal de actualizar
-    $('#productoModalActualizar').on('show.bs.modal', function (e) {
-      console.log("=== MODAL ACTUALIZAR ABRIENDO ===");
-      
-      const totalForms = $("input[name$='TOTAL_FORMS']");
-      console.log("Total forms encontrados:", totalForms.length);
-      
-      if (!totalForms.length) {
-        e.preventDefault();
-        alert("ERROR: No se encontró el formset.");
-        return;
-      }
-
-      const formIndex = totalForms.val();
-      console.log("Form index:", formIndex);
-      
-      const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
-      console.log("Empty form HTML length:", emptyFormHtml.length);
-      
-      if (emptyFormHtml.trim() === '') {
-        e.preventDefault();
-        alert("ERROR: El formset no está disponible.");
-        return;
-      }
-      
-      const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
-      $('#modalFormContainerActualizar').html(newFormHtml);
-      
-      // Inicializar select2 en los selects del modal
-      $('#modalFormContainerActualizar select').select2({
-        dropdownParent: $('#productoModalActualizar'),
-        width: '100%'
-      });
-      
-      console.log("Formulario cargado en modal actualizar");
+$(document).ready(function() {
+    // Inicializar Select2 en todos los selects de producto del formset
+    $('select[name*="producto"]').select2({
+        width: '100%',
+        placeholder: 'Seleccione un producto'
+    });
+    
+    // Inicializar Select2 en el modal
+    $('#productoSelect').select2({
+        width: '100%',
+        placeholder: 'Seleccione un producto',
+        dropdownParent: $('#modalProducto')
+    });
+    
+    // Cerrar modal al hacer clic fuera
+    $('.simple-modal').on('click', function(e) {
+        if (e.target === this) cerrarModalConAnimacion(this.id);
+    });
+    
+    // Cerrar modal con ESC
+    $(document).keydown(function(e) {
+        if (e.keyCode === 27) {
+            $('.simple-modal:visible').each(function() {
+                cerrarModalConAnimacion(this.id);
+            });
+        }
     });
 
-    // Agregar Producto desde modal actualizar
-    $(document).on('click', '#guardarProductoActualizar', function(e) {
-      e.preventDefault();
-      const $modal = $('#productoModalActualizar');
+    // Auto-ocultar mensajes después de 3 segundos
+    setTimeout(function() {
+        $('#messages-container .message').fadeOut(500, function() {
+            $(this).remove();
+        });
+    }, 3000);
+});
 
-      console.log("=== GUARDANDO PRODUCTO (Actualizar) ===");
+function abrirModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'block';
+    modal.offsetHeight;
+    modal.style.opacity = '1';
+}
 
-      const totalForms = $("input[name$='TOTAL_FORMS']");
-      const form = $(".form-container form");
-      const submitButton = form.find("button[type='submit']");
+function cerrarModal(modalId) {
+    cerrarModalConAnimacion(modalId);
+}
 
-      if (!totalForms.length || !form.length) {
-        alert("ERROR: No se encontraron los elementos necesarios.");
-        return;
-      }
-
-      const formIndex = totalForms.val();
-
-      // Tomar valores dentro del modal
-      const productoVal = $modal.find("select[name*='-producto']").val();
-      const cantidadVal = $modal.find("input[name*='-cantidad']").val();
-      const unidadVal   = $modal.find("input[name*='-unidad']").val();
-
-      console.log("Valores capturados:", {productoVal, cantidadVal, unidadVal});
-
-      if (!productoVal || !cantidadVal || !unidadVal) {
-        alert("Por favor complete todos los campos");
-        return;
-      }
-
-      // Crear nuevo formulario con los valores
-      const emptyFormHtml = `{{ formset.empty_form.as_p|escapejs }}`;
-      const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formIndex);
-      const $newDiv = $('<div class="producto-form"></div>').html(newFormHtml);
-
-      // Asignar valores
-      $newDiv.find("select[name*='-producto']").val(productoVal);
-      $newDiv.find("input[name*='-cantidad']").val(cantidadVal);
-      $newDiv.find("input[name*='-unidad']").val(unidadVal);
-
-      // Agregar antes del botón submit
-      submitButton.before($newDiv);
-      totalForms.val(parseInt(formIndex, 10) + 1);
-
-      // Cerrar modal
-      $modal.modal('hide');
-      alert("¡Producto agregado exitosamente!");
-      
-      console.log("Producto agregado, nuevo total:", totalForms.val());
-    });
-
-    console.log("=== LISTENERS MODAL ACTUALIZAR REGISTRADOS ===");
-  });
+function cerrarModalConAnimacion(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.style.opacity = '0';
+    setTimeout(() => {
+        modal.style.display = 'none';
+        const inputs = modal.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.tagName === 'SELECT') {
+                $(input).val(null).trigger('change');
+            } else {
+                input.value = '';
+            }
+        });
+    }, 300);
+}
 </script>
 {% endblock %}

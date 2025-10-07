@@ -7,27 +7,18 @@ from django_select2.forms import *
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
 from aplicacion.models import Mesa
-
-
 from aplicacion.models import (
-    Plato,
-    PlatoProducto,
-    Menu,
-    MenuProducto,
-    Pedido,
-    PedidoDetalle,
-    Producto,
-    Marca,
-    Categoria,
-    Proveedor,
-    Unidad,
+    Plato, PlatoProducto, Menu, MenuProducto, Pedido, PedidoDetalle,
+    Producto, Marca, Categoria, Proveedor, Unidad,
 )
 
 # ==================== PLATO ====================
+
 class PlatoForm(forms.ModelForm):
     class Meta:
         model = Plato
         fields = ['nombre', 'descripcion', 'precio']
+
 
 class PlatoProductoForm(forms.ModelForm):
     class Meta:
@@ -37,28 +28,37 @@ class PlatoProductoForm(forms.ModelForm):
             'producto': Select2Widget(attrs={'class': 'select2'}),
         }
 
+
 PlatoProductoFormSet = inlineformset_factory(
-    Plato,
-    PlatoProducto,
+    Plato, PlatoProducto,
     form=PlatoProductoForm,
     extra=1,
     can_delete=True
 )
 
+PlatoProductoUpdateFormSet = inlineformset_factory(
+    Plato, PlatoProducto,
+    form=PlatoProductoForm,
+    extra=0,  # solo muestra los existentes
+    can_delete=True
+)
+
 # ==================== PEDIDO ====================
+
 class PedidoForm(ModelForm):
     class Meta:
         model = Pedido
         fields = ['mesa', 'estado']
 
+
 PedidoDetalleFormSet = inlineformset_factory(
-    Pedido,
-    PedidoDetalle,
+    Pedido, PedidoDetalle,
     fields=['menu', 'cantidad'],
     extra=1,
 )
 
 # ==================== FORMULARIOS PARA CREAR FOREIGN KEYS ====================
+
 class CrearMarcaForm(forms.ModelForm):
     class Meta:
         model = Marca
@@ -69,6 +69,7 @@ class CrearMarcaForm(forms.ModelForm):
             'pais_origen': forms.TextInput(attrs={'class': 'form-control'})
         }
 
+
 class CrearCategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
@@ -78,6 +79,7 @@ class CrearCategoriaForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3})
         }
 
+
 class CrearProveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
@@ -86,6 +88,7 @@ class CrearProveedorForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'nit': forms.TextInput(attrs={'class': 'form-control'})
         }
+
 
 class CrearUnidadForm(forms.ModelForm):
     class Meta:
@@ -97,6 +100,7 @@ class CrearUnidadForm(forms.ModelForm):
         }
 
 # Widget personalizado para Select2 con opción de crear nuevo
+
 class Select2WithCreateWidget(ModelSelect2Widget):
     def __init__(self, *args, **kwargs):
         self.create_url = kwargs.pop('create_url', None)
@@ -110,7 +114,9 @@ class Select2WithCreateWidget(ModelSelect2Widget):
             attrs['data-create-text'] = self.create_text
         return attrs
 
+
 # ==================== PRODUCTO ====================
+
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
@@ -135,21 +141,21 @@ class ProductoForm(forms.ModelForm):
             raise forms.ValidationError("El stock no puede ser negativo.")
         return stock
 
-    def __init__(self, *args, **kwargs):  # ← CORREGIDO: era _init_
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Asegurar que los selects traen datos de la base
         self.fields['marca'].queryset = Marca.objects.all()
         self.fields['categoria'].queryset = Categoria.objects.all()
         self.fields['proveedor'].queryset = Proveedor.objects.all()
         self.fields['unidad'].queryset = Unidad.objects.all()
 
-        # Placeholders amigables
         self.fields['marca'].empty_label = "Seleccione una marca"
         self.fields['categoria'].empty_label = "Seleccione una categoría"
         self.fields['proveedor'].empty_label = "Seleccione un proveedor"
         self.fields['unidad'].empty_label = "Seleccione una unidad"
 
+
 # Formularios para los modales
+
 class MarcaModalForm(forms.ModelForm):
     class Meta:
         model = Marca
@@ -157,6 +163,7 @@ class MarcaModalForm(forms.ModelForm):
         widgets = {
             'descripcion': forms.Textarea(attrs={'rows': 3}),
         }
+
 
 class CategoriaModalForm(forms.ModelForm):
     class Meta:
@@ -166,17 +173,21 @@ class CategoriaModalForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'rows': 3}),
         }
 
+
 class ProveedorModalForm(forms.ModelForm):
     class Meta:
         model = Proveedor
         fields = ['nombre', 'nit']
+
 
 class UnidadModalForm(forms.ModelForm):
     class Meta:
         model = Unidad
         fields = ['nombre', 'descripcion']
 
+
 # ==================== ADMINISTRADOR ====================
+
 class AdministradorForm(forms.ModelForm):
     class Meta:
         model = Administrador
@@ -193,7 +204,7 @@ class AdministradorForm(forms.ModelForm):
         if nivel_prioridad is not None and nivel_prioridad < 0:
             raise forms.ValidationError("El nivel de prioridad no puede ser negativo.")
         return nivel_prioridad
-    
+
     def clean(self):
         cleaned_data = super().clean()
         nivel_prioridad = cleaned_data.get('nivel_prioridad')
@@ -201,7 +212,9 @@ class AdministradorForm(forms.ModelForm):
             raise forms.ValidationError("El nivel de prioridad no puede ser negativo.")
         return cleaned_data
 
+
 # ==================== VENTA ====================
+
 class VentaForm(forms.ModelForm):
     class Meta:
         model = Venta
@@ -231,11 +244,13 @@ class VentaForm(forms.ModelForm):
             )
         return cleaned_data
 
+
 # ==================== COMPRA ====================
+
 class CompraForm(forms.ModelForm):
     class Meta:
         model = Compra
-        fields = ['proveedor', 'producto', 'cantidad', 'fecha', 'precio', 'unidad']  
+        fields = ['proveedor', 'producto', 'cantidad', 'fecha', 'precio', 'unidad']
         widgets = {
             'cantidad': forms.NumberInput(attrs={
                 'min': '0',
@@ -260,7 +275,9 @@ class CompraForm(forms.ModelForm):
             raise forms.ValidationError("El precio no puede ser negativo.")
         return precio
 
+
 # ==================== INFORME ====================
+
 class InformeForm(forms.Form):
     fecha_inicio = forms.DateField(required=True)
     fecha_fin = forms.DateField(required=True)
@@ -272,16 +289,19 @@ class InformeForm(forms.Form):
         if fecha_inicio and fecha_fin and fecha_inicio > fecha_fin:
             raise forms.ValidationError("La fecha de inicio no puede ser mayor que la fecha fin.")
 
+
 # ==================== MENÚ ====================
+
 class MenuForm(forms.ModelForm):
     """Formulario principal para crear/editar menús"""
+
     TIPO_ITEM_CHOICES = [
         ('', '-- Seleccionar --'),
         ('productos', 'Productos Individuales (Múltiples)'),
         ('plato', 'Plato Compuesto'),
         ('menu_simple', 'Menú Simple'),
     ]
-    
+
     tipo_item = forms.ChoiceField(
         choices=TIPO_ITEM_CHOICES,
         required=True,
@@ -291,7 +311,7 @@ class MenuForm(forms.ModelForm):
         }),
         label='Tipo de Ítem'
     )
-    
+
     plato_id = forms.ModelChoiceField(
         queryset=Plato.objects.all(),
         required=False,
@@ -302,40 +322,15 @@ class MenuForm(forms.ModelForm):
         }),
         label='Plato'
     )
-    
+
     class Meta:
         model = Menu
-        fields = [
-            'nombre', 
-            'descripcion', 
-            'precio_menu', 
-            'descuento', 
-            'categoria_menu', 
-            'disponible',
-        ]
+        fields = ['nombre', 'descripcion', 'precio_menu', 'descuento', 'categoria_menu', 'disponible']
         widgets = {
-            'nombre': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: Combo Especial',
-            }),
-            'descripcion': forms.Textarea(attrs={
-                'class': 'form-control',
-                'placeholder': 'Describe el ítem del menú...',
-                'rows': 4,
-            }),
-            'precio_menu': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'min': '0',
-                'placeholder': '0.00',
-            }),
-            'descuento': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'min': '0',
-                'max': '100',
-                'placeholder': '0.00',
-            }),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Combo Especial'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Describe el ítem del menú...', 'rows': 4}),
+            'precio_menu': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'placeholder': '0.00'}),
+            'descuento': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0', 'max': '100', 'placeholder': '0.00'}),
             'categoria_menu': forms.Select(attrs={'class': 'form-control'}),
             'disponible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -347,11 +342,9 @@ class MenuForm(forms.ModelForm):
             'categoria_menu': 'Categoría del Menú',
             'disponible': 'Disponible',
         }
-    
-    def __init__(self, *args, **kwargs):  # ← CORREGIDO: era _init_
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # Si estamos editando, determinar el tipo
         if self.instance and self.instance.pk:
             if self.instance.menu_productos.exists():
                 self.fields['tipo_item'].initial = 'productos'
@@ -363,13 +356,13 @@ class MenuForm(forms.ModelForm):
                         self.fields['plato_id'].initial = self.instance.item.id
             else:
                 self.fields['tipo_item'].initial = 'menu_simple'
-    
+
     def clean_precio_menu(self):
         precio = self.cleaned_data.get('precio_menu')
         if precio is not None and precio < 0:
             raise forms.ValidationError("El precio no puede ser negativo.")
         return precio
-    
+
     def clean_descuento(self):
         descuento = self.cleaned_data.get('descuento')
         if descuento is None:
@@ -377,21 +370,19 @@ class MenuForm(forms.ModelForm):
         if descuento < 0 or descuento > 100:
             raise forms.ValidationError("El descuento debe estar entre 0 y 100%.")
         return descuento
-    
+
     def clean(self):
         cleaned_data = super().clean()
         tipo_item = cleaned_data.get('tipo_item')
         plato_id = cleaned_data.get('plato_id')
-        
         if tipo_item == 'plato' and not plato_id:
             raise forms.ValidationError('Debe seleccionar un plato.')
-        
         return cleaned_data
-    
+
     def save(self, commit=True):
         menu = super().save(commit=False)
         tipo_item = self.cleaned_data.get('tipo_item')
-        
+
         if tipo_item == 'productos':
             menu.content_type = None
             menu.object_id = None
@@ -403,48 +394,38 @@ class MenuForm(forms.ModelForm):
         elif tipo_item == 'menu_simple':
             menu.content_type = None
             menu.object_id = None
-        
+
         if commit:
             menu.save()
             self.save_m2m()
-        
         return menu
 
-# Formulario para productos individuales del menú
+
 class MenuProductoInlineForm(forms.ModelForm):
     """Formulario inline para productos dentro de un menú"""
+
     class Meta:
         model = MenuProducto
         fields = ['producto', 'cantidad', 'orden']
         widgets = {
             'producto': forms.Select(attrs={'class': 'form-control'}),
-            'cantidad': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'min': '0.01',
-                'placeholder': '1.00'
-            }),
-            'orden': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': '0',
-                'placeholder': '0'
-            }),
+            'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01', 'placeholder': '1.00'}),
+            'orden': forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': '0'}),
         }
-    
-    def __init__(self, *args, **kwargs):  # ← CORREGIDO: era _init_
+
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['producto'].queryset = Producto.objects.all()
-    
+
     def clean_cantidad(self):
         cantidad = self.cleaned_data.get('cantidad')
         if cantidad is not None and cantidad <= 0:
             raise forms.ValidationError("La cantidad debe ser mayor a 0.")
         return cantidad
 
-# Formset para productos en el menú
+
 MenuProductoFormSet = inlineformset_factory(
-    Menu,
-    MenuProducto,
+    Menu, MenuProducto,
     form=MenuProductoInlineForm,
     extra=1,
     can_delete=True,
@@ -453,25 +434,16 @@ MenuProductoFormSet = inlineformset_factory(
 )
 
 
+# ==================== MESA ====================
 
 class MesaForm(forms.ModelForm):
     class Meta:
         model = Mesa
         fields = ['numero', 'capacidad', 'ubicacion']
         widgets = {
-            'numero': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: M-001'
-            }),
-            'capacidad': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: 4',
-                'min': '1'
-            }),
-            'ubicacion': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ej: Terraza'
-            }),
+            'numero': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: M-001'}),
+            'capacidad': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 4', 'min': '1'}),
+            'ubicacion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Terraza'}),
         }
         labels = {
             'numero': 'Número de Mesa',
@@ -481,46 +453,29 @@ class MesaForm(forms.ModelForm):
 
     def clean_numero(self):
         numero = self.cleaned_data.get('numero')
-        
-        # Validar que no esté vacío
         if not numero:
             raise forms.ValidationError("El número de mesa es obligatorio.")
-        
-        # Validar que no tenga espacios
         if ' ' in numero:
             raise forms.ValidationError("El número de mesa no puede contener espacios.")
-        
-        # Validar que sea único (excepto si es actualización)
         instance = self.instance
         if Mesa.objects.filter(numero=numero).exclude(pk=instance.pk).exists():
             raise forms.ValidationError(f"Ya existe una mesa con el número '{numero}'.")
-        
-        return numero.upper()  # Convertir a mayúsculas
+        return numero.upper()
 
     def clean_capacidad(self):
         capacidad = self.cleaned_data.get('capacidad')
-        
-        # Validar que sea un número positivo
         if capacidad is None:
             raise forms.ValidationError("La capacidad es obligatoria.")
-        
         if capacidad < 1:
             raise forms.ValidationError("La capacidad debe ser al menos 1 persona.")
-        
         if capacidad > 20:
             raise forms.ValidationError("La capacidad máxima es de 20 personas.")
-        
         return capacidad
 
     def clean_ubicacion(self):
         ubicacion = self.cleaned_data.get('ubicacion')
-        
-        # Validar que no esté vacío
         if not ubicacion or not ubicacion.strip():
             raise forms.ValidationError("La ubicación es obligatoria.")
-        
-        # Validar longitud mínima
         if len(ubicacion.strip()) < 3:
             raise forms.ValidationError("La ubicación debe tener al menos 3 caracteres.")
-        
-        return ubicacion.strip().title()  # Eliminar espacios y capitalizar
+        return ubicacion.strip().title()
